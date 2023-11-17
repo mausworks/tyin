@@ -2,7 +2,7 @@
  * A function that receives a value and returns an object
  * with additional methods that should be assigned to it.
  *
- * @param value The value to extend.
+ * @param host The value to extend.
  */
 export type Plugin<H extends object, P = void> = (host: H) => P;
 
