@@ -1,0 +1,15 @@
+/*.d.ts
+/*.js
+
+node_modules/
+
+\*.tsbuildinfo
+
+.npm
+.eslintcache
+\*.tgz
+
+.env
+.env.development.local
+dist/
+.cache/

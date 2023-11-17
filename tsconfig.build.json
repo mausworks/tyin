@@ -1,0 +1,22 @@
+{
+  "include": ["./src/**/*.ts"],
+  "exclude": ["./src/**/*.spec.ts"],
+  "compilerOptions": {
+    "rootDir": "./src/",
+    "module": "ESNext",
+    "target": "ESNext",
+    "moduleResolution": "node",
+    "lib": ["es2019", "dom", "dom.iterable"],
+    "allowJs": true,
+    "jsx": "react",
+    "isolatedModules": true,
+    "skipLibCheck": true,
+    "outDir": "./dist/",
+    "declaration": true,
+    "noImplicitAny": true,
+    "downlevelIteration": true,
+    "noImplicitReturns": true,
+    "strictNullChecks": true,
+    "allowSyntheticDefaultImports": true
+  }
+}
