@@ -1,6 +1,8 @@
 name: release
 on:
   push:
+    branches:
+      - 'main'
 jobs:
   release:
     runs-on: ubuntu-latest
@@ -18,9 +20,8 @@ jobs:
       - name: Release
         uses: cycjimmy/semantic-release-action@v4
         with:
-          dry_run: true
-          branches: "*"
-          branch: "*"
+          dry_run: false
+          branches: "main"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
