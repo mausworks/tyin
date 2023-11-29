@@ -1,6 +1,6 @@
 {
   "name": "tyin",
-  "version": "1.0.0",
+  "version": "0.0.0",
   "type": "module",
   "scripts": {
     "build:compile": "rm -rf dist/ && tsc -p tsconfig.build.json",
