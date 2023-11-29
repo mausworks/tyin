@@ -1,10 +1,10 @@
 {
-  "name": "gratis-state",
+  "name": "tyin",
   "version": "1.0.0",
   "type": "module",
   "scripts": {
     "build:compile": "rm -rf dist/ && tsc -p tsconfig.build.json",
-    "build:move": "mv dist/**/* . && rm -rf dist/",
+    "build:move": "mv dist/** . && rm -rf dist/",
     "clean:build": "rm -f *.js && rm -f *.d.ts && rm -f *.js.map",
     "test": "bun test"
   },

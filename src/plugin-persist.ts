@@ -2,7 +2,8 @@
 /// <reference lib="dom.iterable" />
 
 import debounce from "./debounce";
-import { StoreAPI, StorePlugin } from "./store";
+import { StoreAPI } from "./store";
+import { Plugin } from "./pluggable";
 
 /** An object like `window.localStorage`. */
 export type StorageLike = {
@@ -30,7 +31,7 @@ export type PersistOptions<T> = {
   storage?: StorageLike;
 };
 
-export type PersistPlugin<T> = StorePlugin<T>;
+export type PersistPlugin<T> = Plugin<StoreAPI<T>>;
 
 const localStorage = typeof window !== "undefined" ? window.localStorage : null;
 
@@ -38,13 +39,6 @@ const localStorage = typeof window !== "undefined" ? window.localStorage : null;
  * A plugin that persists the state to a storage of your choice,
  * or localStorage by default.
  * @param options Options for the plugin.
- *
- * @example
- * import storeHook from "gratis-state/react";
- * import persistPlugin from "gratis-state/plugin-persist";
- *
- * const useCount = storeHook({ count: 0 })
- *   .with(persistPlugin(window.localStorage, { name: "Count" }));
  */
 const persistPlugin = <T>(options: PersistOptions<T>): PersistPlugin<T> => {
   const {

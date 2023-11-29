@@ -1,21 +1,28 @@
-import { pluggable, Pluggable, Plugin } from "./plugin";
-import { nextState, Settable, StateComparer, StateSubscriber } from "./state";
+/** A function that computes the next state. */
+export type Setter<T, U = T> = (oldState: T) => U;
+/** A value or a function that computes the next state. */
+export type Settable<T, U = T> = T | Setter<T, U>;
+/** A function that computes the next state and returns it. */
+export type StateUpdate<T> = (newState: Settable<T>) => T;
+/** A function that subscribes to state changes. */
+export type StateSubscriber<T> = (oldState: T, newState: T) => void;
+/** A function that compares equality of two states. */
+export type StateComparer<T> = (oldState: T, newState: T) => boolean;
+/** A function that selects a value from a state. */
+export type StateSelector<T, U = T> = (state: T) => U;
 
 /** A store that holds some value and notifies subscribers of state changes. */
 export type StoreAPI<T = any> = {
   /** Gets the current state. */
   get: () => T;
-  /** Replaces the current state with a new one. */
-  set: (newState: Settable<T>) => void;
+  /** Sets the next state and notifies subscribers. */
+  set: (next: Settable<T>) => void;
   /**
    * Subscribes to state changes.
    * Use the returned function to unsubscribe.
    */
   subscribe: (subscriber: StateSubscriber<T>) => () => void;
 };
-
-/** A store that holds a state and notifies subscribers of state changes. */
-export type Store<T> = Pluggable<StoreAPI<T>>;
 
 /** Options for the store. */
 export type StoreOptions<T> = {
@@ -30,9 +37,6 @@ export type StoreOptions<T> = {
 /** Extract the state type of any `StoreAPI`. */
 export type StateOf<T extends StoreAPI> = ReturnType<T["get"]>;
 
-/** A plugin that adds functionality to a store. */
-export type StorePlugin<T, P = void> = Plugin<StoreAPI<T>, P>;
-
 /**
  * A store that holds a state and notifies subscribers of state changes.
  * @param initialState The initial state.
@@ -40,8 +44,10 @@ export type StorePlugin<T, P = void> = Plugin<StoreAPI<T>, P>;
  */
 export default function createStore<T>(
   initialState: T,
-  { equals = Object.is }: StoreOptions<T> = {}
-): Store<T> {
+  options: StoreOptions<T> = {}
+): StoreAPI<T> {
+  const { equals = Object.is } = options;
+
   let state = initialState;
   let subscribers: StateSubscriber<T>[] = [];
 
@@ -50,15 +56,15 @@ export default function createStore<T>(
   const notify = (oldState: T, newState: T) =>
     subscribers.forEach((subscriber) => subscriber(oldState, newState));
 
-  const set = (newState: Settable<T>) => {
-    const resolved = nextState(state, newState);
-
-    if (equals(state, resolved)) return;
-
+  const set = (next: Settable<T>) => {
     const oldState = state;
-    state = resolved;
+    const newState = next instanceof Function ? next(oldState) : next;
 
-    notify(oldState, resolved);
+    if (!equals(oldState, newState)) {
+      state = newState;
+
+      notify(oldState, newState);
+    }
   };
 
   const subscribe = (subscriber: StateSubscriber<T>) => {
@@ -69,5 +75,5 @@ export default function createStore<T>(
     };
   };
 
-  return pluggable({ get, set, subscribe });
+  return { get, set, subscribe };
 }

@@ -1,12 +1,11 @@
 import { it, describe, expect } from "bun:test";
-import { pluggable } from "./plugin";
+import pluggable from "./pluggable";
 
 describe("pluggable lifecycle", () => {
-  it("adds the with and seal methods", () => {
+  it("adds the with method", () => {
     const host = pluggable({});
 
     expect(host.with).toBeDefined();
-    expect(host.seal).toBeDefined();
   });
 
   it("extends the host using `with`", () => {
@@ -16,12 +15,5 @@ describe("pluggable lifecycle", () => {
 
     expect(extendedHost.a).toEqual(1);
     expect(extendedHost.b).toEqual(2);
-  });
-
-  it("seals the object", () => {
-    const host = pluggable({}).seal();
-
-    expect((host as any).with).not.toBeDefined();
-    expect((host as any).seal).not.toBeDefined();
   });
 });

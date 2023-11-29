@@ -1,10 +1,11 @@
 import { it, describe, expect } from "bun:test";
 import createStore from "./store";
-import arrayPreset from "./preset-array";
+import arrayAPI from "./plugin-array";
+import pluggable from "./pluggable";
 
 describe("array API", () => {
   it("pushes values", () => {
-    const store = createStore(["initial"]).with(arrayPreset());
+    const store = pluggable(createStore(["initial"])).with(arrayAPI());
 
     store.push("new", "newer");
     store.push("newest");
@@ -13,7 +14,7 @@ describe("array API", () => {
   });
 
   it("unshifts values", () => {
-    const store = createStore(["initial"]).with(arrayPreset());
+    const store = pluggable(createStore(["initial"])).with(arrayAPI());
 
     store.unshift("new", "newer");
     store.unshift("newest");
@@ -22,7 +23,7 @@ describe("array API", () => {
   });
 
   it("filters values", () => {
-    const store = createStore(["first", "second"]).with(arrayPreset());
+    const store = pluggable(createStore(["first", "second"])).with(arrayAPI());
 
     store.filter((value) => value === "second");
 
@@ -30,7 +31,7 @@ describe("array API", () => {
   });
 
   it("sorts values", () => {
-    const store = createStore(["b", "a", "c", "1"]).with(arrayPreset());
+    const store = pluggable(createStore(["b", "a", "c", "1"])).with(arrayAPI());
 
     store.sort((left, right) => left.localeCompare(right));
 
@@ -38,7 +39,7 @@ describe("array API", () => {
   });
 
   it("clears values", () => {
-    const store = createStore(["initial"]).with(arrayPreset());
+    const store = pluggable(createStore(["initial"])).with(arrayAPI());
 
     store.clear();
 
@@ -46,7 +47,7 @@ describe("array API", () => {
   });
 
   it("reverses values", () => {
-    const store = createStore(["a", "b"]).with(arrayPreset());
+    const store = pluggable(createStore(["a", "b"])).with(arrayAPI());
 
     store.reverse();
 
