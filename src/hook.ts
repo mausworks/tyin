@@ -16,7 +16,7 @@ export type StateSelectorHook<T> = {
   /**
    * Returns a value from the state.
    * @param select A function that returns a value from the state.
-   * @param equals (Optional) A function that compares equality of two values.
+   * @param equals (Optional) A function that compares equality of two selected values.
    * If the values are equal, the hook will not re-render.
    * The default is `Object.is`.
    */
