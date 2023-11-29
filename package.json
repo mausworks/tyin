@@ -10,7 +10,6 @@
   },
   "devDependencies": {
     "@types/react": "18.0.0",
-    "bun-plugin-dts": "^0.2.1",
     "bun-types": "latest"
   },
   "peerDependencies": {
