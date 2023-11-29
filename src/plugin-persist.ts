@@ -49,7 +49,7 @@ const persist = <T>(options: PersistOptions<T>): PersistPlugin<T> => {
     storage = localStorage,
   } = options;
 
-  return (store: StoreAPI<T>) => {
+  return (store) => {
     if (!storage) return;
 
     const stored = storage?.getItem(name);

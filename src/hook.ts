@@ -1,16 +1,24 @@
-import createStore, {
-  StoreAPI,
-  StateComparer,
-  StateSelector,
-  StoreOptions,
-} from "./store";
 import React from "react";
+import createStore, { StoreAPI, StateComparer, StoreOptions } from "./store";
 
+/** A function that returns a value from a state. */
+export type StateSelector<T, U = T> = (state: T) => U;
+
+/** Returns the whole state, or selects a value from the state. */
 export type StateSelectorHook<T> = {
+  /** Returns the whole state. */
   (): T;
+  /**
+   * Returns a value from the state.
+   * @param select A function that returns a value from the state.
+   * @param equals (Optional) A function that compares equality of two values.
+   * If the values are equal, the hook will not re-render.
+   * The default is `Object.is`.
+   */
   <U>(select: StateSelector<T, U>, equals?: StateComparer<U>): U;
 };
 
+/** A hook that is also a state container (store). */
 export type StoreHook<T> = StateSelectorHook<T> & StoreAPI<T>;
 
 function bindHook<T>(store: StoreAPI<T>): StateSelectorHook<T> {
@@ -45,7 +53,7 @@ function bindHook<T>(store: StoreAPI<T>): StateSelectorHook<T> {
 
 /**
  * Creates a store and returns a hook for accessing it.
- * @param initial The initial value.
+ * @param initial The initial state.
  * @param options (Optional) Options for the store.
  */
 export default function storeHook<T>(

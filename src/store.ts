@@ -6,10 +6,8 @@ export type Settable<T, U = T> = T | Setter<T, U>;
 export type ChangeSubscriber<T> = (oldState: T, newState: T) => void;
 /** A function that compares equality of two states. */
 export type StateComparer<T> = (oldState: T, newState: T) => boolean;
-/** A function that returns a value from a state. */
-export type StateSelector<T, U = T> = (state: T) => U;
 
-/** A store that holds some value and notifies subscribers of state changes. */
+/** A store that holds a value and notifies subscribers when it changes. */
 export type StoreAPI<T = any> = {
   /** Gets the current state. */
   get: () => T;
@@ -24,6 +22,7 @@ export type StoreAPI<T = any> = {
   /**
    * Subscribes to state changes.
    * Use the returned function to unsubscribe.
+   * @param subscriber Called when the state changes.
    */
   subscribe: (subscriber: ChangeSubscriber<T>) => () => void;
 };
@@ -31,9 +30,8 @@ export type StoreAPI<T = any> = {
 /** Options for the store. */
 export type StoreOptions<T> = {
   /**
-   * Compares equality of the states. The default is `Object.is`.
-   * If the states are equal, the state will not be updated,
-   * and subscribers will not be notified.
+   * Compares equality of two states, if the states are equal,
+   * the store will not be updated and subscribers will not be notified.
    * The default is `Object.is`.
    */
   equals?: StateComparer<T>;

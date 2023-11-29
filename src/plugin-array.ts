@@ -18,8 +18,6 @@ export type ArrayAPI<T> = {
   map: (callback: ArrayMapCallback<T>) => void;
   /** Sorts the values in the state. */
   sort: (compare: Comparator<T>) => void;
-  /** Removes all values from the state. */
-  clear: () => void;
   /** Reverses the order of the values in the state. */
   reverse: () => void;
 };
@@ -49,7 +47,6 @@ const arrayAPI =
       store.set((state) => (state ? [...state.sort(compare)] : null) as T),
     reverse: () =>
       store.set((state) => (state ? [...state.reverse()] : null) as T),
-    clear: () => store.set((state) => (state ? [] : null) as T),
   });
 
 export default arrayAPI;

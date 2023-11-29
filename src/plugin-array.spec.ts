@@ -38,14 +38,6 @@ describe("array API", () => {
     expect(store.get()).toEqual(["1", "a", "b", "c"]);
   });
 
-  it("clears values", () => {
-    const store = pluggable(createStore(["initial"])).with(arrayAPI());
-
-    store.clear();
-
-    expect(store.get()).toEqual([]);
-  });
-
   it("reverses values", () => {
     const store = pluggable(createStore(["a", "b"])).with(arrayAPI());
 
