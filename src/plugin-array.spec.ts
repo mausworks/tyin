@@ -53,4 +53,12 @@ describe("array API", () => {
 
     expect(store.get()).toEqual(["b", "a"]);
   });
+
+  it("maps values", () => {
+    const store = pluggable(createStore(["a", "b"])).with(arrayAPI());
+
+    store.map((value) => value.toUpperCase());
+
+    expect(store.get()).toEqual(["A", "B"]);
+  });
 });

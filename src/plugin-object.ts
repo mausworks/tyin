@@ -1,6 +1,13 @@
 import { Plugin } from "./pluggable";
 import { Setter, StoreAPI } from "./store";
-import { ObjectLike, OptionalKey } from "./types";
+
+/** An object with keys */
+export type ObjectLike = { [key: string]: any };
+
+/** Only the optional keys of an object. */
+export type OptionalKey<T extends ObjectLike | null> = {
+  [K in keyof T]-?: {} extends Pick<T, K> ? K : never;
+}[keyof T];
 
 export type MergeState<T extends ObjectLike | null, U = Partial<T>> = (
   left: T,
@@ -48,7 +55,7 @@ const objectAPI =
   ): ObjectAPIPlugin<T> =>
   (store) => ({
     size: () => Object.keys(store.get() ?? {}).length,
-    patch: (update: PartialUpdate<T>, merge = options?.merge || mergeLeft) => {
+    patch: (update, merge = options?.merge || mergeLeft) => {
       const state = store.get();
 
       if (typeof update === "function") {
@@ -57,7 +64,7 @@ const objectAPI =
         store.set(merge(state, update));
       }
     },
-    remove: (key: OptionalKey<T>) => {
+    remove: (key) => {
       const state = store.get();
       if (!state) return;
 

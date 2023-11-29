@@ -40,7 +40,7 @@ const localStorage = typeof window !== "undefined" ? window.localStorage : null;
  * or localStorage by default.
  * @param options Options for the plugin.
  */
-const persistPlugin = <T>(options: PersistOptions<T>): PersistPlugin<T> => {
+const persist = <T>(options: PersistOptions<T>): PersistPlugin<T> => {
   const {
     name,
     delay = 0,
@@ -65,4 +65,4 @@ const persistPlugin = <T>(options: PersistOptions<T>): PersistPlugin<T> => {
   };
 };
 
-export default persistPlugin;
+export default persist;

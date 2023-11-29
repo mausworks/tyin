@@ -7,20 +7,22 @@
 export type Plugin<H extends object, P = void> = (host: H) => P;
 
 /** An object that can be extended with additional methods. */
-export type Pluggable<H extends object> = H & {
+export type Pluggable<T extends object> = T & {
   /** Extends the object with additional methods. */
-  with: <P>(plugin: Plugin<H, P>) => Pluggable<H & P>;
+  with: <P>(plugin: Plugin<T, P>) => Pluggable<T & P>;
   /**
    * Removes the `with` (and `seal`) method,
    * allowing no further plugins to be added.
    *
    * 🦭
    */
-  seal: () => Sealed<H>;
+  seal: () => Sealed<T>;
 };
 
 /** Removes the `with` and `seal` methods, and makes the object immutable. */
-export type Sealed<H extends object> = Readonly<Omit<H, "with" | "seal">>;
+export type Sealed<T extends Pluggable<any>> = Readonly<
+  Omit<T, "with" | "seal">
+>;
 
 /**
  * Removes the `with` and `seal` methods,
@@ -29,11 +31,11 @@ export type Sealed<H extends object> = Readonly<Omit<H, "with" | "seal">>;
  * Note: The host object is mutated.
  * @param host The object to seal.
  */
-export function sealPluggable<H extends object>(host: H): Sealed<H> {
+export function sealPluggable<T extends Pluggable<any>>(host: T): Sealed<T> {
   delete (host as any).with;
   delete (host as any).seal;
 
-  return Object.freeze(host) as Sealed<H>;
+  return Object.freeze(host) as Sealed<T>;
 }
 
 /**
@@ -41,8 +43,8 @@ export function sealPluggable<H extends object>(host: H): Sealed<H> {
  * which allows it to be extended with additional plugins.
  * @param host The object to extend.
  */
-export default function pluggable<H extends object>(host: H): Pluggable<H> {
-  const add = <P>(plugin: Plugin<H, P>) =>
+export default function pluggable<T extends object>(host: T): Pluggable<T> {
+  const add = <P>(plugin: Plugin<T, P>) =>
     pluggable(Object.assign(host, plugin(host)));
   const seal = () => sealPluggable(host);
 
