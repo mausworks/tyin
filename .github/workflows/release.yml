@@ -1,0 +1,27 @@
+name: release
+on:
+  push:
+    branches:
+      - 'main'
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+      
+      - run: bun i
+      - run: bun test
+      - run: bun build:compile
+      - run: bun build:move
+      
+      - name: Release
+        uses: cycjimmy/semantic-release-action@v4
+        with:
+          dry_run: false
+          branches: "main"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}

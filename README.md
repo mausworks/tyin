@@ -87,7 +87,7 @@ const UserNameInput = () => {
 ```
 
 Handling arrays can be done similarly,
-and in this case we also add the custom function `complete` to the store.
+and in this case, we also add the custom function `complete` to the store.
 
 ```tsx
 import storeHook from "tyin/hook";
@@ -154,7 +154,7 @@ const useTourState = create(() => ({ started: false, step: 0 }));
 ```
 
 Something you may find glaringly missing are any kind of state setters.
-The reason for this is because I have started to call `setState` directly on the hook instead:
+The reason for this is that I have started to call `setState` directly on the hook instead:
 
 ```ts
 useTourState.setState({ started: true });
@@ -176,7 +176,7 @@ Remember: you can now access and update the store from anywhere, and your compon
 
 Another pain point I had with using zustand "the vanilla way" was that I kept declaring 
 the same couple of state update functions over and over again for each store.
-This is what finally drove me to just call `setState` directly instead, since it's versatile enough for most use-cases:
+This is what finally drove me to just call `setState` directly instead since it's versatile enough for most use cases:
 
 ```ts
 // Replace the state:
@@ -194,17 +194,17 @@ I realized that functions that I wanted on my store were often highly generic:
 
 So why not replace custom state-setting functions with generic ones?
 
-At this point I realized that zustand ships a lot of things that I have no interest in,
+At this point, I realized that zustand ships a lot of things that I have no interest in,
 so I wanted to make something simpler that only satisfies my requirements, and Tyin is the result!
 
 ## Project philosophy
 
-These are the three tenets that allows for Tyin to be a 
+These are the three tenets that allow for Tyin to be a 
 feature-complete state management solution in just a few bytes!
 
 ### 1. Modularity
 
-Tyin doesn't come with an entrypoint—that's intentional!
+Tyin doesn't come with an entry point—that's intentional!
 
 It instead ships a couple of highly stand-alone modules, 
 so that the user can import only the functionality that they need.
@@ -212,7 +212,7 @@ so that the user can import only the functionality that they need.
 ### 2. Genericism
 
 Tyin exposes generic APIs to maximize ergonomics and minimize footprint.
-Generic APIs facilitate code-reuse, leading to synergies in consuming applications.
+Generic APIs facilitate code reuse, leading to synergies in consuming applications.
 
 For example: There is no `ObjectAPI.setKey(key, value)` function, 
 because `ObjectAPI.patch({ [key]: value })` covers that need
@@ -221,7 +221,7 @@ This API is powerful enough to receive aggressive reuse in the consuming app; le
 
 ### 3. Composability
 
-Tyin ships simple abstractions that favors [composition over inheritance](https://en.wikipedia.org/wiki/Composition_over_inheritance).
+Tyin ships simple abstractions that favor [composition over inheritance](https://en.wikipedia.org/wiki/Composition_over_inheritance).
 
 For example: Not every store needs a plugin, so the `StoreAPI` isn't readily extensible, that functionality is in `extend` instead.
 
@@ -253,5 +253,5 @@ Here are a few other common scenarios:
 3. `tyin/*` = 1736 bytes (1219 gzipped)
 
 > **Note:** All these numbers are approximate.
-> Exact bundle size will vary depending on bundler and configuration.
+> Exact bundle size will vary depending on the bundler and configuration.
 > Gzipped size is often smaller in a real-life scenario.
