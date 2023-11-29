@@ -2,12 +2,12 @@
 
 **Typesafe state management in React for less!**
 
-- ✅ ~~Tyin~~ tiny (<1K gzipped, generally less)
+- ✅ ~~Tyin~~ tiny and splittable (<1K gzipped)
 - ✅ Hook-based
 - ✅ Ergonomic
 - ✅ Extensible
 
-_Tyin is pronounced "tie-in": it ties the state _into_ your components
+_Tyin is pronounced "tie-in": it ties the state _into_ your React components
 … it was also short and available on NPM._
 
 ## Installation
@@ -15,7 +15,7 @@ _Tyin is pronounced "tie-in": it ties the state _into_ your components
 Use _your_ favorite NPM package manager:
 
 ```sh
-bun i tyin
+npm i tyin
 ```
 
 ## Quickstart
@@ -58,9 +58,9 @@ const Pagination = ({ maxPage }: PaginationProps) => {
 };
 ```
 
-For more complex states, you often want to add new methods to update your state.
+For complex states, you often want to add new methods to update your state.
 In this case, we can add the `patch` function to the store with the `objectAPI` plugin, 
-and we also need to make the store pluggable:
+but we first need to make the store pluggable:
 
 ```tsx
 import storeHook from "tyin/hook";
@@ -146,7 +146,8 @@ This project is inspired by [zustand](https://github.com/pmndrs/zustand)—I lov
 I have, however, been "using it wrong" for some time, which has led to me creating this project.
 Below is some background …
 
-Many of the stores I've created while working on [dott.bio](https://get.dott.bio) look something like this now:
+I've been working on [dott.bio](https://get.dott.bio) for some time now. It uses NextJS with zustand, 
+but all stores look something like this:
 
 ```tsx
 const useTourState = create(() => ({ started: false, step: 0 }));
@@ -166,16 +167,16 @@ so how can it even make the hook re-render?
 It all works thanks to [the `useSyncExternalStore` hook](https://react.dev/reference/react/useSyncExternalStore) that ships with React.
 With it, you can make virtually anything re-render, and it is what drives both zustand and Tyin.
 
-Zustand popularized the idea that "the hook is the store", and this project evolves on that idea.
-The key difference is now that you put your state update functions on _the store_ instead of _the state_.
+Zustand popularized the idea that "the hook _is_ the store", and this project evolves on this idea even further.
+The key difference is that in Tyin, you put your state update functions on _the store_ instead of _the state_.
 This separates your data from your code ([which is generally considered good practice](https://wiki.c2.com/?SeparationOfDataAndCode)).
 
-So if you can look beyond the initial awkwardness of it, you may now start seeing some additional benefits.
-Remember: you can now access and update the store from anywhere, and your components will comply—it almost feels like cheating.
+If you can look beyond that initial _irk_, you may start seeing some benefits with using this pattern.
+Remember: you can now access and update the store from anywhere, and your components will comply—magic! 🪄
 
-Another pain point I had with using zustand "the vanilla way" (the way they use it in the examples)
-was that I kept declaring the same couple of state update functions over and over again for each store.
-This is what finally drove me to just call `setState` directly instead, since it's versatile enough for most of the use-cases:
+Another pain point I had with using zustand "the vanilla way" was that I kept declaring 
+the same couple of state update functions over and over again for each store.
+This is what finally drove me to just call `setState` directly instead, since it's versatile enough for most use-cases:
 
 ```ts
 // Replace the state:
@@ -186,12 +187,71 @@ useTourState.setState({ step: 2 });
 useTourState.setState((state) => ({ step: state.step + 1 }));
 ```
 
-I realized that what I wanted for my state management was often very generic:
+I realized that functions that I wanted on my store were often highly generic:
 
 - If my state is an object, I want to be able to replace, remove and add keys to it.
 - If my state is an array, I want to be able to push, filter, map, etc …
 
-So then I started defining not replace custom state-setting functions with generic ones?
+So why not replace custom state-setting functions with generic ones?
 
 At this point I realized that zustand ships a lot of things that I have no interest in,
 so I wanted to make something simpler that only satisfies my requirements, and Tyin is the result!
+
+## Project philosophy
+
+These are the three tenets that allows for Tyin to be a 
+feature-complete state management solution in just a few bytes!
+
+### 1. Modularity
+
+Tyin doesn't come with an entrypoint—that's intentional!
+
+It instead ships a couple of highly stand-alone modules, 
+so that the user can import only the functionality that they need.
+
+### 2. Genericism
+
+Tyin exposes generic APIs to maximize ergonomics and minimize footprint.
+Generic APIs facilitate code-reuse, leading to synergies in consuming applications.
+
+For example: There is no `ObjectAPI.setKey(key, value)` function, 
+because `ObjectAPI.patch({ [key]: value })` covers that need
+and a lot of other needs with a more generic API.
+This API is powerful enough to receive aggressive reuse in the consuming app; leading to an even smaller bundle size overall.
+
+### 3. Composability
+
+Tyin ships simple abstractions that favors [composition over inheritance](https://en.wikipedia.org/wiki/Composition_over_inheritance).
+
+For example: Not every store needs a plugin, so the `StoreAPI` isn't readily extensible, that functionality is in `pluggable` instead.
+
+## Bundle size
+
+To get an estimate on the bundle size you can run: 
+
+```sh
+bun run test/bundle-size/estimate.ts
+```
+
+This is the current output:
+
+```txt
+hook.js: 529B (352B gzipped)
+pluggable.js: 196B (150B gzipped)
+plugin-array.js: 332B (187B gzipped)
+plugin-object.js: 286B (228B gzipped)
+plugin-persist.js: 415B (307B gzipped)
+store.js: 245B (211B gzipped)
+```
+
+So, that means if you only import `tyin/hook`; Tyin will add 529 bytes to your bundle size (or ~352 gzipped).
+
+Here are a few other common scenarios.
+
+- `tyin/hook + pluggable + plugin-object` = 1011 bytes (730 gzipped)
+- `tyin/hook + pluggable + plugin-object + plugin-persist` = 1426 bytes (1037 gzipped)
+- `tyin/*` = 1750 bytes (1223 gzipped)
+
+> **Note:** All these numbers are approximate.
+> Exact bundle size will vary depending on bundler and configuration.
+> Gzipped size will likely be smaller in most scenarios.
