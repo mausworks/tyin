@@ -4,9 +4,9 @@ import createStore, { StoreAPI, StateComparer, StoreOptions } from "./store";
 /** A function that returns a value from a state. */
 export type StateSelector<T, U = T> = (state: T) => U;
 
-/** Returns the whole state, or selects a value from the state. */
+/** Returns the current state, or selects a value from it. */
 export type StateSelectorHook<T> = {
-  /** Returns the whole state. */
+  /** Returns the current state. */
   (): T;
   /**
    * Returns a value from the state.
@@ -18,7 +18,7 @@ export type StateSelectorHook<T> = {
   <U>(select: StateSelector<T, U>, equals?: StateComparer<U>): U;
 };
 
-/** A hook that is also a state container (store). */
+/** A hook that is also a state container, a.k.a. store. */
 export type StoreHook<T> = StateSelectorHook<T> & StoreAPI<T>;
 
 function bindHook<T>(store: StoreAPI<T>): StateSelectorHook<T> {
@@ -26,24 +26,18 @@ function bindHook<T>(store: StoreAPI<T>): StateSelectorHook<T> {
     selector: StateSelector<any> = (state) => state,
     equals: StateComparer<any> = Object.is
   ) => {
-    const selectorRef = React.useRef(selector);
-    const equalsRef = React.useRef(equals);
-    const prevRef = React.useRef<any>();
+    const oldRef = React.useRef<any>();
 
-    selectorRef.current = selector;
-    equalsRef.current = equals;
+    const select = () => {
+      const oldValue = oldRef.current;
+      const newValue = selector(store.get());
 
-    const select = React.useCallback(() => {
-      const state = store.get();
-      const oldState = prevRef.current;
-      const newState = selectorRef.current(state);
-
-      if (equalsRef.current(oldState, newState)) {
-        return oldState;
+      if (equals(oldValue, newValue)) {
+        return oldValue;
       } else {
-        return (prevRef.current = newState);
+        return (oldRef.current = newValue);
       }
-    }, []);
+    };
 
     return React.useSyncExternalStore(store.subscribe, select, select);
   };
