@@ -9,7 +9,7 @@ describe("store API", () => {
   });
 
   it("updates the state", () => {
-    const store = createStore("initial state");
+    const store = createStore<string>("initial state");
 
     store.set("updated state");
 
@@ -17,7 +17,7 @@ describe("store API", () => {
   });
 
   it("notifies subscribers of state changes", () => {
-    const store = createStore("initial state");
+    const store = createStore<string>("initial state");
 
     const subscriber = jest.fn();
 
@@ -29,7 +29,7 @@ describe("store API", () => {
   });
 
   it("unsubscribes subscribers", () => {
-    const store = createStore("initial state");
+    const store = createStore<string>("initial state");
 
     const subscriber = jest.fn().mockReset();
 

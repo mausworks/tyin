@@ -5,7 +5,7 @@ await Bun.build({
   entrypoints: [
     "src/hook.ts",
     "src/store.ts",
-    "src/pluggable.ts",
+    "src/extend.ts",
     "src/plugin-object.ts",
     "src/plugin-array.ts",
     "src/plugin-persist.ts",

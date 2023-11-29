@@ -1,19 +1,21 @@
 import { it, describe, expect, jest } from "bun:test";
 import createStore from "./store";
 import persist from "./plugin-persist";
-import pluggable from "./pluggable";
+import extend from "./extend";
 
 describe("persist plugin", () => {
   it("gets the item on setup", () => {
     const storage = { getItem: jest.fn(), setItem: jest.fn() };
-    pluggable(createStore("initial")).with(persist({ name: "test", storage }));
+    extend(createStore<string>("initial")).with(
+      persist({ name: "test", storage })
+    );
 
     expect(storage.getItem).toHaveBeenCalled();
   });
 
   it("sets the item on update", () => {
     const storage = { getItem: jest.fn(), setItem: jest.fn() };
-    const store = pluggable(createStore("initial")).with(
+    const store = extend(createStore<string>("initial")).with(
       persist({ name: "test", storage })
     );
 
@@ -24,7 +26,7 @@ describe("persist plugin", () => {
 
   it("sets the update after the delay", async () => {
     const storage = { getItem: jest.fn(), setItem: jest.fn() };
-    const store = pluggable(createStore("initial")).with(
+    const store = extend(createStore<string>("initial")).with(
       persist({ name: "test", storage, delay: 5 })
     );
 

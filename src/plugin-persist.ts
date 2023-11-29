@@ -2,8 +2,8 @@
 /// <reference lib="dom.iterable" />
 
 import debounce from "./debounce";
-import { StoreAPI } from "./store";
-import { Plugin } from "./pluggable";
+import { AnyState, StoreAPI } from "./store";
+import { Plugin } from "./extend";
 
 /** An object like `window.localStorage`. */
 export type StorageLike = {
@@ -31,7 +31,7 @@ export type PersistOptions<T> = {
   storage?: StorageLike;
 };
 
-export type PersistPlugin<T> = Plugin<StoreAPI<T>>;
+export type PersistPlugin<T extends AnyState> = Plugin<StoreAPI<T>>;
 
 const localStorage = typeof window !== "undefined" ? window.localStorage : null;
 
@@ -40,7 +40,9 @@ const localStorage = typeof window !== "undefined" ? window.localStorage : null;
  * or localStorage by default.
  * @param options Options for the plugin.
  */
-const persist = <T>(options: PersistOptions<T>): PersistPlugin<T> => {
+const persist = <T extends AnyState>(
+  options: PersistOptions<T>
+): PersistPlugin<T> => {
   const {
     name,
     delay = 0,

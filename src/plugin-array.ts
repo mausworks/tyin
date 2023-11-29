@@ -1,5 +1,5 @@
 import { StoreAPI } from "./store";
-import { Plugin } from "./pluggable";
+import { Plugin } from "./extend";
 
 export type ArrayPredicate<T> = (value: T, index: number) => boolean;
 export type Comparator<T> = (prev: T, next: T) => number;

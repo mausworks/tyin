@@ -1,5 +1,10 @@
 import React from "react";
-import createStore, { StoreAPI, StateComparer, StoreOptions } from "./store";
+import createStore, {
+  StoreAPI,
+  StateComparer,
+  StoreOptions,
+  AnyState,
+} from "./store";
 
 /** A function that returns a value from a state. */
 export type StateSelector<T, U = T> = (state: T) => U;
@@ -19,9 +24,11 @@ export type StateSelectorHook<T> = {
 };
 
 /** A hook that is also a state container, a.k.a. store. */
-export type StoreHook<T> = StateSelectorHook<T> & StoreAPI<T>;
+export type StoreHook<T extends AnyState> = StateSelectorHook<T> & StoreAPI<T>;
 
-function bindHook<T>(store: StoreAPI<T>): StateSelectorHook<T> {
+function bindHook<T extends AnyState>(
+  store: StoreAPI<T>
+): StateSelectorHook<T> {
   const useSelector = (
     selector: StateSelector<any> = (state) => state,
     equals: StateComparer<any> = Object.is
@@ -50,7 +57,7 @@ function bindHook<T>(store: StoreAPI<T>): StateSelectorHook<T> {
  * @param initial The initial state.
  * @param options (Optional) Options for the store.
  */
-export default function storeHook<T>(
+export default function storeHook<T extends AnyState>(
   initial: T,
   options?: StoreOptions<T>
 ): StoreHook<T> {

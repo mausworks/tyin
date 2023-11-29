@@ -1,14 +1,23 @@
+export type AnyState =
+  | string
+  | number
+  | boolean
+  | null
+  | undefined
+  | Record<string, any>
+  | AnyState[];
+
 /** A function that computes the next state. */
 export type Setter<T, U = T> = (oldState: T) => U;
 /** A value or a function that computes the next state. */
-export type Settable<T, U = T> = T | Setter<T, U>;
+export type Settable<T, U = T> = Setter<T, U> | T;
 /** A function that subscribes to state changes. */
 export type ChangeSubscriber<T> = (oldState: T, newState: T) => void;
 /** A function that compares equality of two states. */
 export type StateComparer<T> = (oldState: T, newState: T) => boolean;
 
 /** A store that holds a value and notifies subscribers when it changes. */
-export type StoreAPI<T = any> = {
+export type StoreAPI<T extends AnyState = AnyState> = {
   /** Gets the current state. */
   get: () => T;
   /**
@@ -42,7 +51,7 @@ export type StoreOptions<T> = {
  * @param initialState The initial state.
  * @param options Options for the store.
  */
-export default function createStore<T>(
+export default function createStore<T extends AnyState>(
   initialState: T,
   options?: StoreOptions<T>
 ): StoreAPI<T> {
@@ -53,7 +62,7 @@ export default function createStore<T>(
     get: () => state,
     set: (next, equals = options?.equals || Object.is) => {
       const oldState = state;
-      const newState = next instanceof Function ? next(oldState) : next;
+      const newState = typeof next === "function" ? next(oldState) : next;
 
       if (!equals(oldState, newState)) {
         state = newState;

@@ -1,15 +1,15 @@
 import { it, describe, expect } from "bun:test";
-import pluggable from "./pluggable";
+import extend from "./extend";
 
-describe("pluggable lifecycle", () => {
+describe("extensible lifecycle", () => {
   it("adds the with method", () => {
-    const host = pluggable({});
+    const host = extend({});
 
     expect(host.with).toBeDefined();
   });
 
   it("extends the host using `with`", () => {
-    const extendedHost = pluggable({})
+    const extendedHost = extend({})
       .with(() => ({ a: 1 }))
       .with(() => ({ b: 2 }));
 

@@ -1,17 +1,17 @@
 import { it, describe, expect } from "bun:test";
 import createStore from "./store";
 import objectAPI from "./plugin-object";
-import pluggable from "./pluggable";
+import extend from "./extend";
 
 describe("object API", () => {
   it("has size", () => {
-    const store = pluggable(createStore({ a: 1, b: 2 })).with(objectAPI());
+    const store = extend(createStore({ a: 1, b: 2 })).with(objectAPI());
 
     expect(store.size()).toEqual(2);
   });
 
   it("deletes keys", () => {
-    const store = pluggable(
+    const store = extend(
       createStore<Partial<{ a: number }>>({
         a: 1,
       })
@@ -23,7 +23,7 @@ describe("object API", () => {
   });
 
   it("assigns state", () => {
-    const store = pluggable(
+    const store = extend(
       createStore<Record<string, number>>({
         a: 1,
       })

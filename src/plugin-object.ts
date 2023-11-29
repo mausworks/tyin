@@ -1,4 +1,4 @@
-import { Plugin } from "./pluggable";
+import { Plugin } from "./extend";
 import { Setter, StoreAPI } from "./store";
 
 /** An object with keys */

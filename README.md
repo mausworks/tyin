@@ -60,14 +60,14 @@ const Pagination = ({ maxPage }: PaginationProps) => {
 
 For complex states, you often want to add new methods to update your state.
 In this case, we can add the `patch` function to the store with the `objectAPI` plugin, 
-but we first need to make the store pluggable:
+but we first need to make the store extensible:
 
 ```tsx
 import storeHook from "tyin/hook";
-import pluggable from "tyin/pluggable";
+import extend from "tyin/extend";
 import objectAPI from "tyin/plugin-object";
 
-const useUserState = pluggable(
+const useUserState = extend(
   storeHook({
     name: "mausworks",
     roles: ["owner"],
@@ -91,11 +91,11 @@ and in this case we also add the custom function `complete` to the store.
 
 ```tsx
 import storeHook from "tyin/hook";
-import pluggable from "tyin/pluggable";
+import extend from "tyin/extend";
 import arrayAPI from "tyin/plugin-array";
 import persistPlugin from "tyin/plugin-persist";
 
-const useTodoList = pluggable(
+const useTodoList = extend(
   storeHook([{ 
     task: "Walk the dog", 
     completed: false 
@@ -135,9 +135,9 @@ You can also use Tyin outside of React:
 
 ```ts
 import createStore from "tyin/store";
-import pluggable from "tyin/pluggable";
+import extend from "tyin/extend";
 
-const store = pluggable(createStore({ count: 1 })).with(...);
+const store = extend(createStore({ count: 1 })).with(...);
 ```
 
 ## Project Motivation
@@ -223,7 +223,7 @@ This API is powerful enough to receive aggressive reuse in the consuming app; le
 
 Tyin ships simple abstractions that favors [composition over inheritance](https://en.wikipedia.org/wiki/Composition_over_inheritance).
 
-For example: Not every store needs a plugin, so the `StoreAPI` isn't readily extensible, that functionality is in `pluggable` instead.
+For example: Not every store needs a plugin, so the `StoreAPI` isn't readily extensible, that functionality is in `extend` instead.
 
 ## Bundle size
 
@@ -236,8 +236,8 @@ bun run test/bundle-size/estimate.ts
 This is the current output:
 
 ```txt
+extend.js: 182B (146B gzipped)
 hook.js: 529B (352B gzipped)
-pluggable.js: 196B (150B gzipped)
 plugin-array.js: 332B (187B gzipped)
 plugin-object.js: 286B (228B gzipped)
 plugin-persist.js: 415B (307B gzipped)
@@ -246,12 +246,12 @@ store.js: 245B (211B gzipped)
 
 So, that means if you only import `tyin/hook`; Tyin will add 529 bytes to your bundle size (or ~352 gzipped).
 
-Here are a few other common scenarios.
+Here are a few other common scenarios:
 
-- `tyin/hook + pluggable + plugin-object` = 1011 bytes (730 gzipped)
-- `tyin/hook + pluggable + plugin-object + plugin-persist` = 1426 bytes (1037 gzipped)
-- `tyin/*` = 1750 bytes (1223 gzipped)
+1. `tyin/hook + extend + plugin-object` = 997 bytes (716 gzipped)
+2. `tyin/hook + extend + plugin-object + plugin-persist` = 1412 bytes (1034 gzipped)
+3. `tyin/*` = 1736 bytes (1219 gzipped)
 
 > **Note:** All these numbers are approximate.
 > Exact bundle size will vary depending on bundler and configuration.
-> Gzipped size will likely be smaller in most scenarios.
+> Gzipped size is often smaller in a real-life scenario.
