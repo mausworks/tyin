@@ -18,9 +18,9 @@ jobs:
       - name: Release
         uses: cycjimmy/semantic-release-action@v4
         with:
-          debug: true
-          dry_run: false
+          dry_run: true
           branches: "*"
+          branch: "*"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
