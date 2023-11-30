@@ -1,14 +1,18 @@
 /**
- * A function that receives a value and returns an object
- * with additional methods that should be assigned to it.
+ * A function that receives a host object,
+ * and returns an object with additional
+ * properties that should be added to said object.
  *
- * @param host The value to extend.
+ * @param host The object to extend.
  */
 export type Plugin<H extends object, P = void> = (host: H) => P;
 
-/** An object that can be extended with additional methods. */
+/** An object that can be extended through plugins. */
 export type Extensible<T extends object> = T & {
-  /** Extends the object with additional methods. */
+  /**
+   * Extends the object with additional properties, and returns a new extensible object.
+   * @param plugin A function that receives the object and returns additional properties.
+   */
   with: <P>(plugin: Plugin<T, P>) => Extensible<T & P>;
   /**
    * Removes the `with` (and `seal`) method,
@@ -33,13 +37,20 @@ function sealExtensible<H>(host: H): Sealed<H> {
   delete (host as any).with;
   delete (host as any).seal;
 
-  return Object.freeze(host) as Sealed<H>;
+  return host as Sealed<H>;
 }
 
 /**
- * Adds the `with` method to the object,
- * which allows it to be extended with additional plugins.
- * @param host The object to extend.
+ * Returns a new object that can be extended through plugins.
+ * @param host The object to make extensible.
+ *
+ * @example
+ * ```ts
+ * extend({ a: 1 })  // { a: 1, with: ..., seal: ... }
+ *   .with({ b: 2 }) // { a: 1, b: 2, with: ..., seal: ... }
+ *   .with({ b: 3 }) // { a: 1, b: 3, with: ..., seal: ... }
+ *   .seal();        // { a: 1, b: 3 }
+ * ```
  */
 export default function extend<T extends object>(host: T): Extensible<T> {
   const add = <P>(plugin: Plugin<T, P>) =>
