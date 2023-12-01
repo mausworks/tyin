@@ -7,8 +7,8 @@
 - ✅ Ergonomic
 - ✅ Extensible
 
-_Tyin is pronounced "tie-in": it ties the state _into_ your React components
-… it was also short and available on NPM._
+_Tyin is pronounced "tie-in": it ties the state \_into_ your React components
+… it was also short and available on NPM.\_
 
 ## Installation
 
@@ -59,7 +59,7 @@ const Pagination = ({ maxPage }: PaginationProps) => {
 ```
 
 For complex states, you often want to add new methods to update your state.
-In this case, we can add the `patch` function to the store with the `objectAPI` plugin, 
+In this case, we can add the `patch` function to the store with the `objectAPI` plugin,
 but we first need to make the store extensible:
 
 ```tsx
@@ -96,9 +96,9 @@ import arrayAPI from "tyin/plugin-array";
 import persistPlugin from "tyin/plugin-persist";
 
 const useTodoList = extend(
-  storeHook([{ 
-    task: "Walk the dog", 
-    completed: false 
+  storeHook([{
+    task: "Walk the dog",
+    completed: false
   }])
 )
   // Add the array API:
@@ -145,7 +145,7 @@ This project is inspired by [zustand](https://github.com/pmndrs/zustand)—I lov
 I have, however, been "using it wrong" for some time, which has led to me creating this project.
 Below is some background …
 
-I've been working on [dott.bio](https://get.dott.bio) for some time now. It uses NextJS with zustand, 
+I've been working on [dott.bio](https://get.dott.bio) for some time now. It uses NextJS with zustand,
 but all stores look something like this:
 
 ```tsx
@@ -173,7 +173,7 @@ This separates your data from your code ([which is generally considered good pra
 If you can look beyond _"that initial irk"_, you may start seeing some benefits with using this pattern.
 Remember: you can now access and update the store from anywhere, and your components will simply comply—magic! 🪄
 
-Another pain point I had with using zustand "the vanilla way" was that I kept declaring 
+Another pain point I had with using zustand "the vanilla way" was that I kept declaring
 the same couple of state setter over and over again for each store.
 This is what finally drove me to just call `setState` directly instead since it's versatile enough for most use cases:
 
@@ -198,22 +198,22 @@ so I wanted to make something simpler that only satisfies my requirements, and T
 
 ## Project philosophy
 
-These are the three tenets that allow for Tyin to be a 
+These are the three tenets that allow for Tyin to be a
 feature-complete state management solution in just a few bytes!
 
 ### 1. Modularity
 
 Tyin doesn't come with a single entry point—that's intentional!
 
-It instead ships a couple of highly stand-alone modules, 
+It instead ships a couple of highly stand-alone modules,
 so that the user can import only the functionality that they need.
 
 ### 2. Genericism
 
-Tyin exposes generic APIs that aim to maximize ergonomics and bundle size.
+Tyin exposes generic APIs that aim to maximize ergonomics and minimize bundle size.
 Generic APIs facilitate code reuse, leading to synergies in consuming applications.
 
-For example: There is no `ObjectAPI.setKey(key, value)` function, 
+For example: There is no `ObjectAPI.setKey(key, value)` function,
 because `ObjectAPI.patch({ [key]: value })` covers that need
 and a lot of other needs, simply by providing a generic API.
 This API is powerful enough to receive aggressive reuse in the consuming app; leading to an even smaller bundle size overall.
@@ -226,7 +226,7 @@ For example: Not every store needs a plugin, so the `StoreAPI` isn't readily ext
 
 ## Bundle size
 
-To get an estimate on the bundle size you can run: 
+To get an estimate on the bundle size you can run:
 
 ```sh
 bun run test/bundle-size/estimate.ts
@@ -260,13 +260,13 @@ Here are a few other common scenarios:
 This table compares the "general usage" between Tyin, Zustand and Redux.
 I picked these frameworks, because I think most people are familiar with them.
 
-|         | Store setup                                                              | Get state       | Set state                                        |
-|-------------|--------------------------------------------------------------------------|-----------------|--------------------------------------------------|
-| **Tyin**    | Create store, add plugins \*                                             | Use store hook  | Call functions on the store                      |
-| **Zustand** | Create store, define setter functions on the state \*\*                  | Use store hook  | Call defined setter functions on the state       |
-| **Redux**   | Create store, define setter actions, add provider to app                 | Use useDispatch | Dispatch defined setter actions with useDispatch |
+|             | Store setup                                              | Get state       | Set state                                        |
+| ----------- | -------------------------------------------------------- | --------------- | ------------------------------------------------ |
+| **Tyin**    | Create store, add plugins \*                             | Use store hook  | Call functions on the store                      |
+| **Zustand** | Create store, define setter functions on the state \*\*  | Use store hook  | Call defined setter functions on the state       |
+| **Redux**   | Create store, define setter actions, add provider to app | Use useDispatch | Dispatch defined setter actions with useDispatch |
 
 > **\*** = It is unusual to have to define your own setter functions on the store when using Tyin.
-These are provided by plugins such as `tyin/plugin-object` instead.
+> These are provided by plugins such as `tyin/plugin-object` instead.
 
 > **\*\*** This is technically not needed, [but it is the recommended usage](https://docs.pmnd.rs/zustand/getting-started/introduction).
