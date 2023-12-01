@@ -1,7 +1,7 @@
 /**
  * A function that receives an object,
  * and returns an object with additional
- * properties that should be added to said object.
+ * properties that should be added to that object.
  *
  * @param host The object to extend.
  */

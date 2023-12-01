@@ -1,9 +1,9 @@
 /**
- * Calls the function when the specified delay has passed since the last call.
+ * Calls the function once the specified delay has passed since the last call.
  * @param delay The delay in milliseconds.
  * If the delay is zero (or less), the function will be called immediately
- * without a setTimeout.
- * @param fn The function to debounce. Any return value will be ignored.
+ * without a `setTimeout`.
+ * @param fn The function to debounce. Return values are ignored.
  */
 export default function debounce<T extends (...args: any[]) => void>(
   delay: number,
