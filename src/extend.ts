@@ -44,10 +44,10 @@ function sealExtensible<T>(host: T): Sealed<T> {
  * @param host The object to make extensible.
  * @example
  * ```ts
- * extend({ a: 1 })  // { a: 1, with: ..., seal: ... }
- *   .with({ b: 2 }) // { a: 1, b: 2, with: ..., seal: ... }
- *   .with({ b: 3 }) // { a: 1, b: 3, with: ..., seal: ... }
- *   .seal();        // { a: 1, b: 3 }
+ * extend({ a: 1 })                   // { a: 1, with: ..., seal: ... }
+ *   .with(() => ({ b: 2 }))          // { a: 1, b: 2, with: ..., seal: ... }
+ *   .with(({ b }) => ({ b: b + 1 })) // { a: 1, b: 3, with: ..., seal: ... }
+ *   .seal();                         // { a: 1, b: 3 }
  * ```
  */
 export default function extend<T extends object>(host: T): Extensible<T> {
