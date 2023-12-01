@@ -22,13 +22,24 @@ export type PartialUpdate<T extends ObjectLike | null> =
   | Partial<T>
   | Setter<T, Partial<T>>;
 
+/**
+ * Convenience methods for working with objects,
+ * most notably `patch`, which can be used to update the state
+ * in many ways.
+ */
 export type ObjectAPI<T extends ObjectLike | null> = {
   /** Returns the number of keys in the object. */
   size: () => number;
   /**
-   * Patches the given update onto the state.
-   *
-   * @param update The update to apply.
+   * Applies a partial update to the state.
+   * @param update The partial update to apply.
+   * @param merge (Optional) A function that merges the current state with the update.
+   * Defaults to the `merge` option passed when creating the plugin.
+   * @example
+   * ```ts
+   * useExample.patch({ a: 2 });
+   * useExample.patch((state) => ({ a: state.a + 1 }));
+   * ```
    */
   patch: (update: PartialUpdate<T>, merge?: MergeState<T>) => void;
   /** Removes the given key from the object. */
@@ -47,7 +58,18 @@ const mergeLeft = <T extends ObjectLike | null, U = Partial<T>>(
 
 /**
  * A plugin that adds object methods to the store.
- * @param options Options for the plugin.
+ * @param options (Optional) Options for the plugin.
+ * @template T The type of the state, must be an object type.
+ * @example
+ * ```ts
+ * import storeHook from "tyin/hook";
+ * import extend from "tyin/extend";
+ * import objectAPI from "tyin/plugin-object";
+ *
+ * const useExample = extend(storeHook({ a: 1, b: 2 }))
+ *   .with(objectAPI())
+ *   .seal();
+ * ```
  */
 const objectAPI =
   <T extends ObjectLike | null>(

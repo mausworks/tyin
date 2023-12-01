@@ -30,7 +30,18 @@ export type ArrayAPIPlugin<T extends any[] | null> = Plugin<
 >;
 
 /**
- * A plugin that adds array methods to the store.
+ * Adds convenience methods for working with arrays.
+ * @template T The type of the state, must be an array type.
+ * @example
+ * ```ts
+ * import storeHook from "tyin/hook";
+ * import extend from "tyin/extend";
+ * import arrayAPI from "tyin/plugin-array";
+ *
+ * const useExample = extend(storeHook([1, 2, 3]))
+ *   .with(arrayAPI())
+ *   .seal();
+ * ```
  */
 const arrayAPI =
   <T extends any[] | null>(): ArrayAPIPlugin<T> =>
