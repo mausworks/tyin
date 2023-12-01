@@ -11,7 +11,7 @@ export type StorageLike = {
   setItem: (key: string, value: string) => void;
 };
 
-/** Options for the persist plugin.. */
+/** Options for the persist plugin. */
 export type PersistOptions<T> = {
   /** The key to use when storing the state. */
   name: string;
@@ -23,11 +23,11 @@ export type PersistOptions<T> = {
    * @default 0
    */
   delay?: number;
-  /** Mutate the value before saving and/or after loading. */
+  /** Modify the value before saving and/or after loading. */
   map?: (state: T) => T;
   /** Determine whether to save the state. */
   filter?: (state: T) => boolean;
-  /** The storage to use, defaults to localStorage. */
+  /** The storage to use, defaults to localStorage in the browser. */
   storage?: StorageLike;
 };
 
@@ -36,9 +36,20 @@ export type PersistPlugin<T extends AnyState> = Plugin<StoreAPI<T>>;
 const localStorage = typeof window !== "undefined" ? window.localStorage : null;
 
 /**
- * A plugin that persists the state to a storage of your choice,
- * or localStorage by default.
- * @param options Options for the plugin.
+ * A plugin that persists the state of the store on changes
+ * to a storage of your choice, or localStorage by default.
+ * @param options Configure the plugin.
+ * @template T The type of the state.
+ * @example
+ * ```ts
+ * import storeHook from "tyin/hook";
+ * import extend from "tyin/extend";
+ * import persist from "tyin/plugin-persist";
+ *
+ * const useExample = extend(storeHook({ a: 1, b: 2 }))
+ *   .with(persist({ name: "Example" }))
+ *   .seal();
+ * ```
  */
 const persist = <T extends AnyState>(
   options: PersistOptions<T>
