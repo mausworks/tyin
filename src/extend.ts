@@ -1,16 +1,16 @@
 /**
- * A function that receives a host object,
+ * A function that receives an object,
  * and returns an object with additional
  * properties that should be added to said object.
  *
  * @param host The object to extend.
  */
-export type Plugin<H extends object, P = void> = (host: H) => P;
+export type Plugin<T extends object, P = void> = (host: T) => P;
 
 /** An object that can be extended through plugins. */
 export type Extensible<T extends object> = T & {
   /**
-   * Extends the object with additional properties, and returns a new extensible object.
+   * Returns a copy of this extensible object with the properties from the plugin added.
    * @param plugin A function that receives the object and returns additional properties.
    */
   with: <P>(plugin: Plugin<T, P>) => Extensible<T & P>;
@@ -24,26 +24,24 @@ export type Extensible<T extends object> = T & {
 };
 
 /** Removes the `with` and `seal` methods. */
-export type Sealed<H> = H extends Extensible<infer T> ? T : H;
+export type Sealed<T> = T extends Extensible<infer T> ? T : T;
 
 /**
- * Removes the `with` and `seal` methods,
- * and makes the object immutable.
+ * Removes the `with` and `seal` methods from the host object.
  *
  * Note: The host object is mutated.
  * @param host The object to seal.
  */
-function sealExtensible<H>(host: H): Sealed<H> {
+function sealExtensible<T>(host: T): Sealed<T> {
   delete (host as any).with;
   delete (host as any).seal;
 
-  return host as Sealed<H>;
+  return host as Sealed<T>;
 }
 
 /**
  * Returns a new object that can be extended through plugins.
  * @param host The object to make extensible.
- *
  * @example
  * ```ts
  * extend({ a: 1 })  // { a: 1, with: ..., seal: ... }
