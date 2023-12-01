@@ -259,11 +259,11 @@ Here are a few other common scenarios:
 This table compares the "general usage" between Tyin, Zustand and Redux.
 I picked these frameworks, because I think most people are familiar with them.
 
-|             | Store setup                                              | Get state       | Set state                                        |
-| ----------- | -------------------------------------------------------- | --------------- | ------------------------------------------------ |
-| **Tyin**    | Create store, add plugins \*                             | Use store hook  | Call functions on the store                      |
-| **Zustand** | Create store, define setter functions on the state \*\*  | Use store hook  | Call defined setter functions on the state       |
-| **Redux**   | Create store, define setter actions, add provider to app | Use useDispatch | Dispatch defined setter actions with useDispatch |
+|             | Store setup                                              | Get state       | Set state                                |
+| ----------- | -------------------------------------------------------- | --------------- | ---------------------------------------- |
+| **Tyin**    | Create store, add plugins \*                             | Use store hook  | Call functions on the store              |
+| **Zustand** | Create store, define setter functions on the state \*\*  | Use store hook  | Call setter functions on the state       |
+| **Redux**   | Create store, define setter actions, add provider to app | Use useDispatch | Dispatch setter actions with useDispatch |
 
 > **\*** = It is unusual to have to define your own setter functions on the store when using Tyin.
 > These are provided by plugins such as `tyin/plugin-object` instead.
