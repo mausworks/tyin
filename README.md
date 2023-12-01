@@ -2,13 +2,12 @@
 
 **Typesafe state management in React for less!**
 
-- ✅ ~~Tyin~~ tiny and splittable (<1K gzipped)
-- ✅ Hook-based
+- ✅ Tiny and splittable (<1K gzipped)
 - ✅ Ergonomic
 - ✅ Extensible
 
-_Tyin is pronounced "tie-in": it ties the state \_into_ your React components
-… it was also short and available on NPM.\_
+_Tyin is pronounced "tie-in": it ties a state into your React components
+… it was also short and available on NPM._
 
 ## Installation
 
