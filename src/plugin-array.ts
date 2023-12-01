@@ -31,7 +31,7 @@ export type ArrayAPIPlugin<T extends any[] | null> = Plugin<
 
 /**
  * Adds convenience methods for working with arrays.
- * @template T The type of the state, must be an array type..
+ * @template T The type of the state, must be an array type.
  * @example
  * ```ts
  * import storeHook from "tyin/hook";

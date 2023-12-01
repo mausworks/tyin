@@ -59,6 +59,7 @@ const mergeLeft = <T extends ObjectLike | null, U = Partial<T>>(
 /**
  * A plugin that adds object methods to the store.
  * @param options (Optional) Options for the plugin.
+ * @template T The type of the state, must be an object type.
  * @example
  * ```ts
  * import storeHook from "tyin/hook";
