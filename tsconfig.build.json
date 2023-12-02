@@ -1,6 +1,6 @@
 {
   "include": ["./src/**/*.ts"],
-  "exclude": ["./src/**/*.spec.ts"],
+  "exclude": ["./src/**/*.spec.ts", "./src/test/**.ts"],
   "compilerOptions": {
     "rootDir": "./src/",
     "module": "ESNext",

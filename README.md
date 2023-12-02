@@ -1,13 +1,12 @@
-# Tyin
+# 👔 Tyin
 
 **Typesafe state management in React for less!**
 
-- ✅ Tiny and splittable (<1K gzipped)
-- ✅ Ergonomic
-- ✅ Extensible
+✅ Tiny (<1K)  
+✅ Ergonomic  
+✅ Extensible
 
-_Tyin is pronounced "tie-in"—it ties a state into your React components
-… it was also short and available on NPM._
+Tyin is pronounced _tie-in_: it ties a state into your app.
 
 ## Installation
 
@@ -49,12 +48,14 @@ const Pagination = ({ maxPage }: PaginationProps) => {
         disabled={activePage === maxPage}
         onClick={() => useActivePage.set(maxPage)}
       />
-    <Container>
+    </Container>
   );
 };
 ```
 
-Real life applications are often more complex: so in this example, we will add the `patch` function with the `objectAPI` plugin, to handle partial updates of the state:
+Real life applications are often more complex, though.
+
+Let's add the `patch` function using the `objectAPI` plugin so we can handle partial updates:
 
 ```tsx
 import storeHook from "tyin/hook";
@@ -80,7 +81,8 @@ const UserNameInput = () => {
 };
 ```
 
-Tyin also ships with a convenience plugin for arrays.
+Tyin also ships with a convenience plugin for arrays—because not every state is an object.
+
 In this example, we will add it, along with the persist plugin,
 and a custom setter called `complete`:
 
@@ -125,7 +127,7 @@ const TodoApp = () => {
 };
 ```
 
-You can also use Tyin outside of React:
+We can also use Tyin outside of React:
 
 ```ts
 import createStore from "tyin/store";
@@ -173,25 +175,21 @@ bun run test/bundle-size/estimate.ts
 This is the current output:
 
 ```txt
-extend.js: 167B (140B gzipped)
-hook.js: 529B (349B gzipped)
-plugin-array.js: 332B (191B gzipped)
-plugin-object.js: 286B (226B gzipped)
-plugin-persist.js: 415B (304B gzipped)
-store.js: 245B (212B gzipped)
+export-all.js: 1714 bytes (898 gzipped)
+export-object.js: 1373 bytes (766 gzipped)
+export-object-no-persist.js: 967 bytes (552 gzipped)
+hook.js: 529 bytes (350 gzipped)
+plugin-persist.js: 415 bytes (304 gzipped)
+plugin-array.js: 332 bytes (190 gzipped)
+plugin-object.js: 286 bytes (226 gzipped)
+store.js: 245 bytes (212 gzipped)
+extend.js: 167 bytes (140 gzipped)
 ```
 
-So, that means if you only import `tyin/hook`; Tyin will add 529 bytes to your bundle size (or ~349 gzipped).
+So, that means if you import everything; Tyin will add ~900 bytes to your bundle size,
+and the most minimal implementation (just `tyin/hook`) would only add ~350 bytes.
 
-Here are a few other common scenarios:
-
-1. `tyin/hook + extend + plugin-object` = ~1000 bytes (~700 gzipped)
-2. `tyin/hook + extend + plugin-object + plugin-persist` = ~1400 bytes (~1000 gzipped)
-3. `tyin/*` = ~1750 bytes (~1200 gzipped)
-
-> **Note:** All these numbers are approximate.
-> Exact bundle size will vary depending on the bundler and configuration.
-> Gzipped size is often smaller in a real-life scenario.
+But this all depends on your bundler and configuration. In real-life scenarios it is often less. For dott.bio—using the `export-object.js` variant measured above—Tyin adds 550 bytes (according to `next/bundle-analyzer`).
 
 ## Framework comparison
 

@@ -3,6 +3,9 @@ import zlib from "zlib";
 
 await Bun.build({
   entrypoints: [
+    "src/test/export-all.ts",
+    "src/test/export-object.ts",
+    "src/test/export-object-no-persist.ts",
     "src/hook.ts",
     "src/store.ts",
     "src/extend.ts",
@@ -15,11 +18,28 @@ await Bun.build({
   minify: true,
 });
 
-for (const bundle of (await fs.readdir("test/bundle-size/dist")).sort()) {
-  const path = `test/bundle-size/dist/${bundle}`;
-  const size = await fs.stat(path).then((s) => s.size);
-  const buffer = await fs.readFile(path);
-  const gzipped = zlib.gzipSync(buffer).length;
+let sizes: Record<string, { size: number; gzipped: number }> = {};
 
-  console.log(`${bundle}: ${size}B (${gzipped}B gzipped)`);
+const measureDirectory = async (path: string) => {
+  for (const entry of await fs.readdir(path, { withFileTypes: true })) {
+    const fullPath = `${path}/${entry.name}`;
+
+    if (entry.isDirectory()) {
+      await measureDirectory(`${path}/${entry.name}`);
+    } else {
+      const size = await fs.stat(fullPath).then((s) => s.size);
+      const buffer = await fs.readFile(fullPath);
+      const gzipped = zlib.gzipSync(buffer).length;
+
+      sizes[entry.name] = { size, gzipped };
+    }
+  }
+};
+
+await measureDirectory("test/bundle-size/dist");
+
+for (const [name, { size, gzipped }] of Object.entries(sizes).sort(
+  (a, b) => b[1].size - a[1].size
+)) {
+  console.log(`${name}: ${size} bytes (${gzipped} gzipped)`);
 }
