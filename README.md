@@ -53,9 +53,7 @@ const Pagination = ({ maxPage }: PaginationProps) => {
 };
 ```
 
-Real life applications are often more complex, though.
-
-Let's add the `patch` function using the `objectAPI` plugin so we can handle partial updates:
+Real life applications are often more complex, though, so let's add the `patch` function from the object plugin to handle partial updates:
 
 ```tsx
 import storeHook from "tyin/hook";
@@ -81,7 +79,7 @@ const UserNameInput = () => {
 };
 ```
 
-Tyin also ships with a convenience plugin for arrays—because not every state is an object.
+Tyin also ships with a convenience plugin for arrays—because not every state is an object!
 
 In this example, we will add it, along with the persist plugin,
 and a custom setter called `complete`:
@@ -202,17 +200,17 @@ I picked these frameworks, because I think most people are familiar with them.
 | **Zustand** | Create store, define setter functions on the state \*\*  | Use store hook  | Call setter functions on the state       |
 | **Redux**   | Create store, define setter actions, add provider to app | Use useDispatch | Dispatch setter actions with useDispatch |
 
-> **\*** = It is uncommon to have to define your own setter functions on the store when using Tyin.
+> **\*** = You rarely define your own setter functions when using Tyin.
 > These are provided by plugins such as `tyin/plugin-object` instead.
 
-> **\*\*** This is technically not needed, [but it is the recommended usage](https://docs.pmnd.rs/zustand/getting-started/introduction).
+> **\*\*** = This is technically not needed, [but it is the recommended usage](https://docs.pmnd.rs/zustand/getting-started/introduction).
 
 ## Project motivation
 
 This project is inspired by [zustand](https://github.com/pmndrs/zustand)—I love zustand.
 I have, however, been "using it wrong" while working on [dott.bio](https://get.dott.bio).
 
-Most of my stores—after refactoring—now look like this:
+Most of the stores—after refactoring—now look like this:
 
 ```tsx
 const useTourState = create(() => ({ started: false, step: 0 }));
@@ -240,7 +238,7 @@ If you can look beyond _"that initial irk"_, you may start seeing some benefits 
 Remember: you can now access and update the store from anywhere, and your components will simply comply—magic! 🪄
 
 Another pain point I had with using zustand "the vanilla way" was that I kept declaring
-the same couple of state setter over and over again for each store.
+the same couple of state setters over and over again for each store.
 This is what finally drove me to just call `setState` directly instead since it's versatile enough for most use cases:
 
 ```ts
