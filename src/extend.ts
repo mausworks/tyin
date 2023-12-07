@@ -10,7 +10,7 @@ export type Plugin<T extends object, P = void> = (host: T) => P;
 /** An object that can be extended through plugins. */
 export type Extensible<T extends object> = T & {
   /**
-   * Returns a copy of this extensible object with the properties from the plugin added.
+   * Adds the properties from the plugin to the object, and returns it.
    * @param plugin A function that receives the object and returns additional properties.
    */
   with: <P>(plugin: Plugin<T, P>) => Extensible<T & P>;
