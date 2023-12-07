@@ -14,11 +14,20 @@ export type StateSelectorHook<T> = {
   /** Returns the current state. */
   (): T;
   /**
-   * Returns a value from the state.
+   * Selects a value from the state.
    * @param select A function that returns a value from the state.
-   * @param equals (Optional) Compares equality of the previously selected and next value.
-   * If the values are equal, the hook will not re-render.
+   * @param equals (Optional) Compare the previously selected and next value:
+   * If the values are equal between updates,
+   * the hook will not re-render.
    * The default is `Object.is`.
+   * @example
+   * ```ts
+   * const useExample = storeHook({ a: 1, b: 2 });
+   *
+   * const a = useExample((state) => state.a);
+   * const b = useExample((state) => state.b, (prev, next) => next > prev);
+   * const size = useExample(() => useExample().size());
+   * ```
    */
   <U>(select: StateSelector<T, U>, equals?: StateComparer<U>): U;
 };
@@ -38,7 +47,6 @@ function bindHook<T extends AnyState>(
     equals: StateComparer<any> = Object.is
   ) => {
     const oldRef = React.useRef<any>();
-
     const select = () => {
       const oldValue = oldRef.current;
       const newValue = selector(store.get());
@@ -61,7 +69,7 @@ function bindHook<T extends AnyState>(
  * The returned value is both a function and a `StoreAPI` object,
  * which means that you call `set` directly on the hook to update the state.
  *
- * **Tip:** Add new setter functions by using `tyin/extend` and plugins
+ * **Tip:** Add new setter functions with `tyin/extend` and plugins
  * such as `tyin/plugin-object` or `tyin/plugin-array`.
  * They provide a convenient API that promotes reuse,
  * which helps with reducing your overall bundle size!
