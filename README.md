@@ -167,21 +167,20 @@ For example: Not every store needs a plugin, so the `StoreAPI` isn't readily ext
 To get an estimate on the bundle size you can run:
 
 ```sh
-bun run test/bundle-size/estimate.ts
+bun run src/test/size.ts
 ```
 
 This is the current output:
 
 ```txt
-export-all.js: 1714 bytes (898 gzipped)
-export-object.js: 1373 bytes (766 gzipped)
-export-object-no-persist.js: 967 bytes (552 gzipped)
-hook.js: 529 bytes (350 gzipped)
-plugin-persist.js: 415 bytes (304 gzipped)
-plugin-array.js: 332 bytes (190 gzipped)
-plugin-object.js: 286 bytes (226 gzipped)
-store.js: 245 bytes (212 gzipped)
-extend.js: 167 bytes (140 gzipped)
+export-all: 1619 bytes, 832 gzipped
+export-common: 1309 bytes, 722 gzipped
+hook: 529 bytes, 350 gzipped
+plugin-persist: 415 bytes, 304 gzipped
+plugin-array: 332 bytes, 190 gzipped
+plugin-object: 286 bytes, 226 gzipped
+store: 245 bytes, 212 gzipped
+extend: 167 bytes, 138 gzipped
 ```
 
 So, that means if you import everything; Tyin will add ~900 bytes to your bundle size,
