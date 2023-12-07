@@ -22,8 +22,6 @@ export type StateSelectorHook<T> = {
    * The default is `Object.is`.
    * @example
    * ```ts
-   * const useExample = storeHook({ a: 1, b: 2 });
-   *
    * const a = useExample((state) => state.a);
    * const b = useExample((state) => state.b, (prev, next) => next > prev);
    * const size = useExample(() => useExample().size());
