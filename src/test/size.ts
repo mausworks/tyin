@@ -1,11 +1,10 @@
-import fs from "fs/promises";
 import zlib from "zlib";
+import fs from "fs/promises";
 
 await Bun.build({
   entrypoints: [
-    "src/test/export-all.ts",
-    "src/test/export-object.ts",
-    "src/test/export-object-no-persist.ts",
+    "src/test/_export-all.ts",
+    "src/test/_export-common.ts",
     "src/hook.ts",
     "src/store.ts",
     "src/extend.ts",
@@ -13,7 +12,7 @@ await Bun.build({
     "src/plugin-array.ts",
     "src/plugin-persist.ts",
   ],
-  outdir: "test/bundle-size/dist",
+  outdir: "src/test/.dist",
   external: ["react"],
   minify: true,
 });
@@ -36,10 +35,14 @@ const measureDirectory = async (path: string) => {
   }
 };
 
-await measureDirectory("test/bundle-size/dist");
+await measureDirectory("src/test/.dist");
+
+const nice = (name: string) => name.replace(/_/g, "").replace(/\.js$/, "");
 
 for (const [name, { size, gzipped }] of Object.entries(sizes).sort(
   (a, b) => b[1].size - a[1].size
 )) {
-  console.log(`${name}: ${size} bytes (${gzipped} gzipped)`);
+  console.log(`${nice(name)}: ${size} bytes, ${gzipped} gzipped`);
 }
+
+await fs.rm("src/test/.dist", { recursive: true });

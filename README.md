@@ -53,9 +53,7 @@ const Pagination = ({ maxPage }: PaginationProps) => {
 };
 ```
 
-Real life applications are often more complex, though.
-
-Let's add the `patch` function using the `objectAPI` plugin so we can handle partial updates:
+Real life applications are often more complex, though, so let's add the `patch` function from the object plugin to handle partial updates:
 
 ```tsx
 import storeHook from "tyin/hook";
@@ -81,7 +79,7 @@ const UserNameInput = () => {
 };
 ```
 
-Tyin also ships with a convenience plugin for arrays—because not every state is an object.
+Tyin also ships with a convenience plugin for arrays—because not every state is an object!
 
 In this example, we will add it, along with the persist plugin,
 and a custom setter called `complete`:
@@ -169,21 +167,20 @@ For example: Not every store needs a plugin, so the `StoreAPI` isn't readily ext
 To get an estimate on the bundle size you can run:
 
 ```sh
-bun run test/bundle-size/estimate.ts
+bun run src/test/size.ts
 ```
 
 This is the current output:
 
 ```txt
-export-all.js: 1714 bytes (898 gzipped)
-export-object.js: 1373 bytes (766 gzipped)
-export-object-no-persist.js: 967 bytes (552 gzipped)
-hook.js: 529 bytes (350 gzipped)
-plugin-persist.js: 415 bytes (304 gzipped)
-plugin-array.js: 332 bytes (190 gzipped)
-plugin-object.js: 286 bytes (226 gzipped)
-store.js: 245 bytes (212 gzipped)
-extend.js: 167 bytes (140 gzipped)
+export-all: 1619 bytes, 832 gzipped
+export-common: 1309 bytes, 722 gzipped
+hook: 529 bytes, 350 gzipped
+plugin-persist: 415 bytes, 304 gzipped
+plugin-array: 332 bytes, 190 gzipped
+plugin-object: 286 bytes, 226 gzipped
+store: 245 bytes, 212 gzipped
+extend: 167 bytes, 138 gzipped
 ```
 
 So, that means if you import everything; Tyin will add ~900 bytes to your bundle size,
@@ -202,17 +199,17 @@ I picked these frameworks, because I think most people are familiar with them.
 | **Zustand** | Create store, define setter functions on the state \*\*  | Use store hook  | Call setter functions on the state       |
 | **Redux**   | Create store, define setter actions, add provider to app | Use useDispatch | Dispatch setter actions with useDispatch |
 
-> **\*** = It is uncommon to have to define your own setter functions on the store when using Tyin.
+> **\*** = You rarely define your own setter functions when using Tyin.
 > These are provided by plugins such as `tyin/plugin-object` instead.
 
-> **\*\*** This is technically not needed, [but it is the recommended usage](https://docs.pmnd.rs/zustand/getting-started/introduction).
+> **\*\*** = This is technically not needed, [but it is the recommended usage](https://docs.pmnd.rs/zustand/getting-started/introduction).
 
 ## Project motivation
 
 This project is inspired by [zustand](https://github.com/pmndrs/zustand)—I love zustand.
 I have, however, been "using it wrong" while working on [dott.bio](https://get.dott.bio).
 
-Most of my stores—after refactoring—now look like this:
+Most of the stores—after refactoring—now look like this:
 
 ```tsx
 const useTourState = create(() => ({ started: false, step: 0 }));
@@ -240,7 +237,7 @@ If you can look beyond _"that initial irk"_, you may start seeing some benefits 
 Remember: you can now access and update the store from anywhere, and your components will simply comply—magic! 🪄
 
 Another pain point I had with using zustand "the vanilla way" was that I kept declaring
-the same couple of state setter over and over again for each store.
+the same couple of state setters over and over again for each store.
 This is what finally drove me to just call `setState` directly instead since it's versatile enough for most use cases:
 
 ```ts
