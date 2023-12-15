@@ -3,8 +3,9 @@ import fs from "fs/promises";
 
 await Bun.build({
   entrypoints: [
-    "src/__test__/_export-all.ts",
-    "src/__test__/_export-common.ts",
+    "src/test/_export-all.ts",
+    "src/test/_export-common.ts",
+    "src/test/_export-reducer.ts",
     "src/hook.ts",
     "src/store.ts",
     "src/extend.ts",
