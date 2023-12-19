@@ -32,7 +32,7 @@ export type StoreAPI<T extends AnyState = AnyState> = {
   /**
    * Subscribes to state changes.
    * Use the returned function to unsubscribe.
-   * @param subscriber Called when the state changes.
+   * @param subscriber Called after the state changes.
    */
   subscribe: (subscriber: ChangeSubscriber<T>) => () => void;
 };
