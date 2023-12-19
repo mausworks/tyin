@@ -3,16 +3,29 @@ import { AnyState, StoreAPI } from "./store";
 
 /** An action to dispatch to a reducer */
 export type Action<T = string> = { type: T };
-
 /** An action with a payload */
-export type Payload<T = string, P = any> = Action<T> & { payload: P };
+export type Payload<T = string, P = any> = { type: T; payload: P };
+/** A function that listens for actions */
+export type ActionListener<A> = (action: A) => void;
 
 /**
  * A plugin that allows you to dispatch actions to a reducer.
  * @template A The type of the action.
  */
 export type ReducerAPI<A> = {
+  /**
+   * Dispatches an action to the reducer.
+   * @param action One of the actions supported by the reducer.
+   */
   dispatch: (action: A) => void;
+  /**
+   * Listens for actions dispatched to the reducer.
+   * Use the returned function to unsubscribe.
+   *
+   * Note: The listener is notifed even if the state update is identical.
+   * @param listener Called when an action is dispatched.
+   */
+  listen: (listener: ActionListener<A>) => () => void;
 };
 
 /**
@@ -20,7 +33,7 @@ export type ReducerAPI<A> = {
  * @template T The type of the state.
  * @template A The type of the action.
  */
-export type ReducerPlugin<T extends AnyState, A extends Action> = Plugin<
+export type ReducerPlugin<T extends AnyState, A> = Plugin<
   StoreAPI<T>,
   ReducerAPI<A>
 >;
@@ -34,7 +47,7 @@ export type ReducerPlugin<T extends AnyState, A extends Action> = Plugin<
 export type Reducer<T extends AnyState, A> = (state: T, action: A) => T;
 
 /**
- * A plugin that adds a reducer to the store, allowing you to dispatch actions.
+ * A plugin that adds a reducer to the store, allowing you to dispatch and listen for actions.
  * @param reducer A reducer function that takes a state and an action,
  * and returns a new state.
  * @template T The type of the state.
@@ -63,12 +76,24 @@ export type Reducer<T extends AnyState, A> = (state: T, action: A) => T;
  *   .seal();
  * ```
  */
-const reducerAPI =
-  <T extends AnyState, A extends Action>(
-    reducer: Reducer<T, A>
-  ): ReducerPlugin<T, A> =>
-  (store) => ({
-    dispatch: (action) => store.set(reducer(store.get(), action)),
+const reducerAPI = <T extends AnyState, A>(
+  reducer: Reducer<T, A>
+): ReducerPlugin<T, A> => {
+  let listeners: ActionListener<A>[] = [];
+
+  return (store) => ({
+    dispatch: (action) => {
+      store.set(reducer(store.get(), action));
+      listeners.forEach((listener) => listener(action));
+    },
+    listen: (listener) => {
+      listeners.push(listener);
+
+      return () => {
+        listeners = listeners.filter((callback) => callback !== listener);
+      };
+    },
   });
+};
 
 export default reducerAPI;
