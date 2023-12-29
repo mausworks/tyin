@@ -3,8 +3,8 @@ import fs from "fs/promises";
 
 await Bun.build({
   entrypoints: [
-    "src/test/_export-all.ts",
-    "src/test/_export-common.ts",
+    "src/__test__/_export-all.ts",
+    "src/__test__/_export-common.ts",
     "src/hook.ts",
     "src/store.ts",
     "src/extend.ts",
@@ -12,7 +12,7 @@ await Bun.build({
     "src/plugin-array.ts",
     "src/plugin-persist.ts",
   ],
-  outdir: "src/test/.dist",
+  outdir: "src/__test__/.dist",
   external: ["react"],
   minify: true,
 });
@@ -35,7 +35,7 @@ const measureDirectory = async (path: string) => {
   }
 };
 
-await measureDirectory("src/test/.dist");
+await measureDirectory("src/__test__/.dist");
 
 const nice = (name: string) => name.replace(/_/g, "").replace(/\.js$/, "");
 
@@ -45,4 +45,4 @@ for (const [name, { size, gzipped }] of Object.entries(sizes).sort(
   console.log(`${nice(name)}: ${size} bytes, ${gzipped} gzipped`);
 }
 
-await fs.rm("src/test/.dist", { recursive: true });
+await fs.rm("src/__test__/.dist", { recursive: true });
