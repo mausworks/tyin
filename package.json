@@ -10,10 +10,8 @@
   },
   "devDependencies": {
     "@types/react": "18.0.0",
-    "bun-types": "latest"
-  },
-  "peerDependencies": {
-    "typescript": "^5.0.0",
-    "react": ">18.0.0"
+    "react": "18.0.0",
+    "bun-types": "latest",
+    "typescript": "^5.0.0"
   }
 }
