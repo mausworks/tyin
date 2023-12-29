@@ -1,7 +1,7 @@
 /// <reference lib="dom" />
 /// <reference lib="dom.iterable" />
 
-import debounce from "./debounce";
+import debounce from "./util-debounce";
 import { AnyState, StoreAPI } from "./store";
 import { Plugin } from "./extend";
 
@@ -20,7 +20,7 @@ export type PersistOptions<T> = {
    * This is useful for reducing the number of writes to storage
    * for high frequency updates.
    *
-   * @default 0
+   * The default is 0.
    */
   delay?: number;
   /** Modify the value before saving and/or after loading. */
