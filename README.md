@@ -125,6 +125,37 @@ const TodoApp = () => {
 };
 ```
 
+Tyin also provides a way to query and mutate data using the Sync plugin:
+
+```ts
+import storeHook from "tyin/hook";
+import extend from "tyin/extend";
+import sync from "tyin/plugin-sync";
+import objectAPI from "tyin/plugin-object";
+import useProfileError from "@/stores/useProfileError"; // other storeHook
+import profileAPI from "@/apis/profile"; // fetch wrapper
+
+export type ProfileData = {
+  name: string;
+  bio?: string;
+  likes: number;
+}
+
+export const useProfile = extend(storeHook<ProfileData | null>(null))
+  .with(objectAPI())
+  .with(
+    sync({
+      push: (profile) => profileAPI.update(profile).catch(useProfileError.set),
+      pull: (profileId: string) =>
+        profileAPI.get(profileId).catch(useProfileError.set),
+      delete: (profile) =>
+        profileAPI.delete(profile.id).catch(useProfileError.set),
+    })
+  )
+  .seal();
+
+```
+
 We can also use Tyin outside of React:
 
 ```ts
@@ -173,14 +204,14 @@ bun run src/test/size.ts
 This is the current output:
 
 ```txt
-export-all: 1619 bytes, 832 gzipped
-export-common: 1309 bytes, 722 gzipped
-hook: 529 bytes, 350 gzipped
-plugin-persist: 415 bytes, 304 gzipped
+export-all: 1789 bytes, 898 gzipped
+export-common: 1479 bytes, 786 gzipped
+hook: 584 bytes, 384 gzipped
+plugin-persist: 415 bytes, 305 gzipped
 plugin-array: 332 bytes, 190 gzipped
-plugin-object: 286 bytes, 226 gzipped
+plugin-object: 286 bytes, 225 gzipped
+extend: 282 bytes, 196 gzipped
 store: 245 bytes, 212 gzipped
-extend: 167 bytes, 138 gzipped
 ```
 
 So, that means if you import everything; Tyin will add ~900 bytes to your bundle size,
@@ -259,3 +290,18 @@ So why not replace custom state setters with generic ones?
 
 At this point, I realized that zustand ships a lot of things that I have no interest in,
 so I wanted to make something simpler that only satisfies my requirements, and Tyin is the result!
+
+## Module naming strategy
+
+Here are the general naming guidelines:
+
+- Use no prefix for top-level APIs (example: `store.ts`)
+- Use the `plugin-` prefix for plugins (example: `plugin-object.ts`)
+- Plugins can be either a file (`plugin-object.ts`) or a directory (`plugin-sync/index.ts`)
+- Use the `util-` prefix for utility functions (example: `util-throttle.ts`)
+- Utils may only export a single function
+
+_Keep in mind that every module in the project is intended for external consumption_
+
+- Every file should have a default export (with a good default name)
+- 
