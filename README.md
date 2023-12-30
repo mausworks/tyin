@@ -342,9 +342,9 @@ Here are the general naming guidelines:
 - Use the `plugin-` prefix for plugins (example: `plugin-object.ts`)
 - Plugins can be either a file (`plugin-object.ts`) or a directory (`plugin-sync/index.ts`)
 - Use the `util-` prefix for utility functions (example: `util-throttle.ts`)
-- Utils may only export a single function
+- Utils may only export a single function (and related types)
 
 _Keep in mind that every module in the project is intended for external consumption_
 
 - Every file should have a default export (with a good default name)
-- 
+- Exports must be documented and provide a clear example of usage
