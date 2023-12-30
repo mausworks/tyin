@@ -1,6 +1,9 @@
 # 👔 Tyin
 
-**Typesafe state management in React for less!**
+Typesafe state management in React for less!
+
+![npm](https://img.shields.io/npm/v/tyin) ![GitHub Workflow (Release)](https://img.shields.io/github/actions/workflow/status/mausworks/tyin/release.yml)
+
 
 ✅ Tiny (<1K)  
 ✅ Ergonomic  
