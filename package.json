@@ -11,10 +11,12 @@
     "store",
     "hook"
   ],
+  "author": "Rasmus Wennerström",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/mausworks/tyin.git"
   },
+  "homepage": "https://github.com/mausworks/tyin",
   "version": "0.0.0",
   "type": "module",
   "license": "ISC",
