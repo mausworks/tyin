@@ -53,7 +53,9 @@ const Pagination = ({ maxPage }: PaginationProps) => {
 };
 ```
 
-Real life applications are often more complex, though, so let's add the `patch` function from the object plugin to handle partial updates:
+### Handling complex states
+
+Real life applications are often complex, let's add the `patch` function from the object plugin to handle partial updates:
 
 ```tsx
 import storeHook from "tyin/hook";
@@ -79,7 +81,9 @@ const UserNameInput = () => {
 };
 ```
 
-Tyin also ships with a convenience plugin for arrays—because not every state is an object!
+### Handling arrays
+
+Tyin ships with a convenience plugin for arrays—because not every state is an object!
 
 In this example, we will add it, along with the persist plugin,
 and a custom setter called `complete`:
@@ -125,38 +129,77 @@ const TodoApp = () => {
 };
 ```
 
-Tyin also provides a way to query and mutate data using the Sync plugin:
+### Data fetching with Tyin Sync
 
-```ts
+Tyin provides a way to query and mutate data upstream using the Sync plugin.
+
+It provides automatic deduplication, either based on the parameters we provide for `pull`,
+or based on the state itself when we `push` or `delete`. 
+We will also cache the results of the `pull` operation for 10 seconds.
+
+After the store has been set up we can automatically, 
+pull the state when a component mounts, we can use `usePull`.
+
+```tsx
 import storeHook from "tyin/hook";
 import extend from "tyin/extend";
 import sync from "tyin/plugin-sync";
+import usePull from "tyin/plugin-sync/usePull";
 import objectAPI from "tyin/plugin-object";
-import useProfileError from "@/stores/useProfileError"; // other storeHook
-import profileAPI from "@/apis/profile"; // fetch wrapper
+import useErrors from "@/stores/useErrors";
 
 export type ProfileData = {
+  id: string;
   name: string;
   bio?: string;
-  likes: number;
-}
+};
 
 export const useProfile = extend(storeHook<ProfileData | null>(null))
   .with(objectAPI())
   .with(
     sync({
-      push: (profile) => profileAPI.update(profile).catch(useProfileError.set),
-      pull: (profileId: string) =>
-        profileAPI.get(profileId).catch(useProfileError.set),
-      delete: (profile) =>
-        profileAPI.delete(profile.id).catch(useProfileError.set),
+      pullOptions: { cacheDuration: 10000 },
+      pull: async (id: string) => {
+        return await fetch(`/api/profile/${id}`)
+          .then((res) => res.json())
+          .catch(useErrors.push);
+      },
+      push: async (state) => {
+        await fetch(`/api/profile/${state.id}`, {
+          method: "PUT",
+          body: JSON.stringify(state),
+        }).catch(useErrors.push);
+      },
+      delete: async (state) => {
+        await fetch(`/api/profile/${state.id}`, {
+          method: "DELETE",
+        }).catch(useErrors.push);
+      },
     })
   )
   .seal();
 
+type ProfileSettingsPageProps = { profileId: string };
+
+function ProfileSettingsPage({ profileId }: ProfileSettingsPage) {
+  const { state: profile, status } = usePull(useProfile, profileId);
+
+  if (status !== "loaded") return null;
+
+  return (
+    <Page>
+      <UserSettings profile={profile} onSave={useProfile.sync.push} />
+      <ProfileDangerZone profile={profile} onDelete={useProfile.sync.delete} />
+    </Page>
+  )
+}
 ```
 
-We can also use Tyin outside of React:
+### Tyin without React
+
+React is only a `devDependency` for Tyin. 
+Unless you import `storeHook` or other React-specific functionality,
+Tyin works just fine without React.
 
 ```ts
 import createStore from "tyin/store";
