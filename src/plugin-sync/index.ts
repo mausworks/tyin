@@ -32,12 +32,6 @@ export type PushOptions<T> = {
    * Defaults to `JSON.stringify`.
    */
   hash?: (state: T) => string;
-  /**
-   * A function that is called when the push fails.
-   * @param error The error that caused the push to fail.
-   * @param state The state that was passed to the push function.
-   */
-  onError?: (error: unknown, state: T) => void;
 };
 
 export type PullOptions<P extends PullFunction<any>> = {
@@ -62,13 +56,6 @@ export type PullOptions<P extends PullFunction<any>> = {
    * Defaults to JSON.stringify.
    */
   hash?: (...args: Parameters<P>) => string;
-
-  /**
-   * A function that is called when the pull fails.
-   * @param error The error that caused the pull to fail.
-   * @param args The arguments that were passed to the pull function.
-   */
-  onError?: (error: unknown, args: Parameters<P>) => void;
 };
 
 export type DeleteOptions<T> = {
@@ -84,12 +71,6 @@ export type DeleteOptions<T> = {
    * Defaults to JSON.stringify.
    */
   hash?: (state: T) => string;
-  /**
-   * A function that is called when the delete fails.
-   * @param error The error that caused the delete to fail.
-   * @param state The state that was passed to the delete function.
-   */
-  onError?: (error: unknown, state: T) => void;
 };
 
 export type SyncSetup<T, P extends PullFunction<T>> = {
@@ -117,7 +98,7 @@ export type SyncFunctions<S extends SyncSetup<any, any> = SyncSetup<any, any>> =
     push: S["push"] extends (...args: any[]) => Promise<any>
       ? () => Promise<void>
       : undefined;
-    /** Delete the state upstream, and set it to null. */
+    /** Delete the state upstream, and reset the state to the initial state. */
     delete: S["delete"] extends (...args: any[]) => Promise<any>
       ? () => Promise<void>
       : undefined;
@@ -177,13 +158,7 @@ export default function sync<
         push: setup.push
           ? () =>
               cached({
-                load: () => {
-                  const state = store.get();
-
-                  return setup.push!(state).catch((error) =>
-                    setup.pushOptions?.onError?.(error, state)
-                  );
-                },
+                load: () => setup.push!(store.get()),
                 args: ["$PUSH", store.get()],
                 options: setup.pushOptions,
               })
@@ -199,11 +174,8 @@ export default function sync<
         delete: setup.delete
           ? () =>
               cached({
-                load: () => {
-                  const state = store.get();
-
-                  return setup.delete!(state).then(() => store.set(initial));
-                },
+                load: () =>
+                  setup.delete!(store.get()).then(() => store.set(initial)),
                 args: ["$DEL", store.get()],
                 options: setup.deleteOptions,
               })
