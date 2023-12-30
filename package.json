@@ -1,5 +1,16 @@
 {
   "name": "tyin",
+  "description": "Typesafe state management in React for less!",
+  "keywords": [
+    "react",
+    "state",
+    "manager",
+    "management",
+    "redux",
+    "zustand",
+    "store",
+    "hook"
+  ],
   "version": "0.0.0",
   "type": "module",
   "license": "ISC",
