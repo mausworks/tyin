@@ -136,12 +136,10 @@ const TodoApp = () => {
 
 Tyin provides a way to query and mutate data upstream using the Sync plugin.
 
-It provides automatic deduplication, either based on the parameters we provide for `pull`,
-or based on the state itself when we `push` or `delete`. 
-We will also cache the results of the `pull` operation for 10 seconds.
+It provides automatic deduplication based on the parameters that you provide for `pull`, or based on the state itself for `push` and `delete`. You can also cache the result by setting a `cacheDuration`.
 
-After the store has been set up we can automatically, 
-pull the state when a component mounts, we can use `usePull`.
+After the store has been set up we can, 
+pull the state when a component mounts by using the `usePull` hook. To push or delete, we can just call the functions directly on the `sync` API.
 
 ```tsx
 import storeHook from "tyin/hook";
@@ -191,8 +189,14 @@ function ProfileSettingsPage({ profileId }: ProfileSettingsPage) {
 
   return (
     <Page>
-      <UserSettings profile={profile} onSave={useProfile.sync.push} />
-      <ProfileDangerZone profile={profile} onDelete={useProfile.sync.delete} />
+      <UserSettings 
+        profile={profile} 
+        onSave={useProfile.sync.push} 
+      />
+      <ProfileDangerZone 
+        profile={profile} 
+        onDelete={useProfile.sync.delete} 
+      />
     </Page>
   )
 }
@@ -200,9 +204,10 @@ function ProfileSettingsPage({ profileId }: ProfileSettingsPage) {
 
 ### Tyin without React
 
-React is only a `devDependency` for Tyin. 
-Unless you import `storeHook` or other React-specific functionality,
-Tyin works just fine without React.
+Tyin works just fine without React, in fact,
+React is just a `devDependency` for it.
+
+Unless you import `storeHook` or other React-specific functionality, you can use Tyin anywhere. Just replace `storeHook` with `createStore`.
 
 ```ts
 import createStore from "tyin/store";
