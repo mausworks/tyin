@@ -355,4 +355,4 @@ Here are the general naming guidelines:
 _Keep in mind that every module in the project is intended for external consumption_
 
 - Every file should have a default export (with a good default name)
-- Exports must be documented and provide a clear example of usage
+- Default exports must be documented and provide a clear example of usage
