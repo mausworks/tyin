@@ -11,6 +11,7 @@ await Bun.build({
     "src/plugin-object.ts",
     "src/plugin-array.ts",
     "src/plugin-persist.ts",
+    "src/plugin-sync/index.ts",
   ],
   outdir: "src/__test__/.dist",
   external: ["react"],
@@ -45,4 +46,4 @@ for (const [name, { size, gzipped }] of Object.entries(sizes).sort(
   console.log(`${nice(name)}: ${size} bytes, ${gzipped} gzipped`);
 }
 
-await fs.rm("src/__test__/.dist", { recursive: true });
+await fs.rm("src/__test__/.dist", { recursive: true, force: true });
