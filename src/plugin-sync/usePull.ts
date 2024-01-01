@@ -9,10 +9,10 @@ export type SyncAPIWithPull<P extends PullFunction<any>> = {
 
 export type PullStatus = "idle" | "loading" | "error" | "success";
 
-export default function usePull<
-  T extends AnyState,
-  P extends PullFunction<any>
->(useStore: StoreHook<T> & SyncAPIWithPull<P>, ...args: Parameters<P>) {
+export default function usePull<T extends AnyState, P extends PullFunction<T>>(
+  useStore: StoreHook<T> & SyncAPIWithPull<P>,
+  ...args: Parameters<P>
+) {
   const [status, setStatus] = useState<PullStatus>("idle");
   const [error, setError] = useState<unknown>(null);
   const state = useStore();
