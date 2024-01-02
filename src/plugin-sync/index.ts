@@ -6,8 +6,27 @@ import prune, { Pruned } from "../util-prune";
 /**
  * A function with that pulls the state from an external source
  * using some arguments.
+ * The function should return a promise that resolves with the new state.
  */
 export type PullFunction<T> = (...args: any[]) => Promise<T>;
+
+/**
+ * A function that pushes the state to an external source,
+ * optionally using some extra arguments.
+ * The function should return a promise that resolves when the push is complete.
+ */
+export type PushFunction<T> = (state: T, ...extra: any[]) => Promise<unknown>;
+
+/**
+ * A function that deletes the state from an external source,
+ * optionally using some extra arguments.
+ * The function should return a promise that resolves when the deletion is complete.
+ */
+export type DeleteFunction<T> = (state: T, ...extra: any[]) => Promise<unknown>;
+
+export type ExtraArgs<T> = T extends (state: any, ...args: infer U) => any
+  ? U
+  : never;
 
 export type PushOptions<T> = {
   /**
@@ -73,39 +92,43 @@ export type DeleteOptions<T> = {
   hash?: (state: T) => string;
 };
 
-export type SyncSetup<T, P extends PullFunction<T>> = {
+export type SyncSetup<
+  T extends AnyState = AnyState,
+  PUSH extends PushFunction<T> = PushFunction<T>,
+  PULL extends PullFunction<T> = PullFunction<T>,
+  DEL extends DeleteFunction<T> = DeleteFunction<T>
+> = {
   /** Define how to sync the state upstream. */
-  push?: (state: T) => Promise<unknown>;
+  push?: PUSH;
   /** Configure deduplication and caching when pushing. */
   pushOptions?: PushOptions<T>;
   /** Define how to sync the state downstream. */
-  pull?: P;
+  pull?: PULL;
   /** Configure deduplication and caching when pulling. */
-  pullOptions?: PullOptions<P>;
+  pullOptions?: PullOptions<PULL>;
   /** Define how to delete the state upstream. */
-  delete?: null extends T ? (state: T) => Promise<unknown> : never;
+  delete?: DEL;
   /** Configure deduplication when deleting. */
   deleteOptions?: DeleteOptions<T>;
 };
 
-export type SyncFunctions<S extends SyncSetup<any, any> = SyncSetup<any, any>> =
-  Pruned<{
-    /** Pull a new state downstream. */
-    pull: S["pull"] extends PullFunction<any>
-      ? (...args: Parameters<S["pull"]>) => Promise<void>
-      : undefined;
-    /** Push the current state upstream. */
-    push: S["push"] extends (...args: any[]) => Promise<any>
-      ? () => Promise<void>
-      : undefined;
-    /** Delete the state upstream, and reset the state to the initial state. */
-    delete: S["delete"] extends (...args: any[]) => Promise<any>
-      ? () => Promise<void>
-      : undefined;
-  }>;
+export type SyncFunctions<S extends SyncSetup<any> = SyncSetup<any>> = Pruned<{
+  /** Pull a new state downstream. */
+  pull: S["pull"] extends PullFunction<any>
+    ? (...args: Parameters<S["pull"]>) => Promise<void>
+    : undefined;
+  /** Push the current state upstream. */
+  push: S["push"] extends (...args: any[]) => Promise<any>
+    ? (...args: ExtraArgs<S["push"]>) => Promise<void>
+    : undefined;
+  /** Delete the state upstream, and reset the state to the initial state. */
+  delete: S["delete"] extends (...args: any[]) => Promise<any>
+    ? (...args: ExtraArgs<S["delete"]>) => Promise<void>
+    : undefined;
+}>;
 
 /** The API provided by the sync plugin. */
-export type SyncAPI<T extends AnyState, S extends SyncSetup<T, any>> = {
+export type SyncAPI<T extends AnyState, S extends SyncSetup<T>> = {
   sync: SyncFunctions<S>;
 };
 
@@ -142,11 +165,10 @@ export type SyncPlugin<
  *   .seal();
  * ```
  */
-export default function sync<
-  T extends AnyState,
-  S extends SyncSetup<T, PullFunction<T>>
->(
-  setup: S extends SyncSetup<T, infer P> ? SyncSetup<T, P> : S
+export default function sync<T extends AnyState, S extends SyncSetup<T>>(
+  setup: S extends SyncSetup<infer T, infer PUSH, infer PULL, infer DEL>
+    ? SyncSetup<T, PUSH, PULL, DEL>
+    : S
 ): SyncPlugin<T, S> {
   const cached = promiseCache();
 
@@ -156,10 +178,10 @@ export default function sync<
     return {
       sync: prune({
         push: setup.push
-          ? () =>
+          ? (...extra: any[]) =>
               cached({
-                load: () => setup.push!(store.get()),
-                args: ["$PUSH", store.get()],
+                load: () => setup.push!(store.get(), ...extra),
+                args: ["$PUSH", store.get(), extra],
                 options: setup.pushOptions,
               })
           : undefined,
@@ -172,11 +194,13 @@ export default function sync<
               })
           : undefined,
         delete: setup.delete
-          ? () =>
+          ? (...extra: any[]) =>
               cached({
                 load: () =>
-                  setup.delete!(store.get()).then(() => store.set(initial)),
-                args: ["$DEL", store.get()],
+                  setup.delete!(store.get(), ...extra).then(() =>
+                    store.set(initial)
+                  ),
+                args: ["$DEL", store.get(), extra],
                 options: setup.deleteOptions,
               })
           : undefined,
