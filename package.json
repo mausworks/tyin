@@ -23,7 +23,7 @@
   "scripts": {
     "build:compile": "rm -rf dist/ && tsc -p tsconfig.build.json",
     "build:move": "mv dist/** . && rm -rf dist/",
-    "clean:build": "rm -f *.js && rm -f *.d.ts && rm -f *.js.map",
+    "clean:build": "rm -f **/*.js && rm -f **/*.d.ts && rm -f **/*.js.map",
     "test": "bun test"
   },
   "devDependencies": {
