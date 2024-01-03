@@ -154,8 +154,8 @@ export type SyncPlugin<
  * const useExample = extend(storeHook({ a: 1, b: 2 }))
  *   .with(
  *     syncAPI({
- *       push: (state) =>
- *         fetch(`/example/${state.a}`, {
+ *       push: (state, c: number) =>
+ *         fetch(`/example/${state.a}?c=${c}`, {
  *           method: "PUT",
  *           body: JSON.stringify(state),
  *         }),
