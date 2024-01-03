@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { PullFunction } from "./index";
+import { PullFunction } from "../plugin-sync";
 import { StoreHook } from "../hook";
 import { AnyState } from "../store";
 

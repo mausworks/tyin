@@ -259,13 +259,14 @@ bun run src/test/size.ts
 This is the current output:
 
 ```txt
-export-all: 1789 bytes, 898 gzipped
-export-common: 1479 bytes, 786 gzipped
+export-all: 3043 bytes, 1411 gzipped
+export-common: 1469 bytes, 781 gzipped
+index: 1217 bytes, 631 gzipped
 hook: 584 bytes, 384 gzipped
 plugin-persist: 415 bytes, 305 gzipped
 plugin-array: 332 bytes, 190 gzipped
 plugin-object: 286 bytes, 225 gzipped
-extend: 282 bytes, 196 gzipped
+extend: 272 bytes, 191 gzipped
 store: 245 bytes, 212 gzipped
 ```
 
@@ -352,7 +353,7 @@ Here are the general naming guidelines:
 
 - Use no prefix for top-level APIs (example: `store.ts`)
 - Use the `plugin-` prefix for plugins (example: `plugin-object.ts`)
-- Plugins can be either a file (`plugin-object.ts`) or a directory (`plugin-sync/index.ts`)
+- Functions that are related to a plugin may be exported from a folder with the plugin name (example: `plugin-sync/usePull.ts`)
 - Use the `util-` prefix for utility functions (example: `util-throttle.ts`)
 - Utils may only export a single function (and related types)
 

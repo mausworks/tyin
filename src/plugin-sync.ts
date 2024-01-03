@@ -1,11 +1,10 @@
-import { Plugin } from "../extend";
-import { AnyState, StoreAPI } from "../store";
-import createCache from "../util-cache";
-import prune, { Pruned } from "../util-prune";
+import { Plugin } from "./extend";
+import { AnyState, StoreAPI } from "./store";
+import createCache from "./util-cache";
+import prune, { Pruned } from "./util-prune";
 
 /**
- * A function with that pulls the state from an external source
- * using some arguments.
+ * A function with that pulls the state from an external sourc using some arguments.
  * The function should return a promise that resolves with the new state.
  */
 export type PullFunction<T> = (...args: any[]) => Promise<T>;
@@ -24,6 +23,7 @@ export type PushFunction<T> = (state: T, ...extra: any[]) => Promise<unknown>;
  */
 export type DeleteFunction<T> = (state: T, ...extra: any[]) => Promise<unknown>;
 
+/** Returns the extra arguments of either a push or delete function. */
 export type ExtraArgs<T> = T extends (state: any, ...args: infer U) => any
   ? U
   : never;

@@ -11,7 +11,7 @@ await Bun.build({
     "src/plugin-object.ts",
     "src/plugin-array.ts",
     "src/plugin-persist.ts",
-    "src/plugin-sync/index.ts",
+    "src/plugin-sync.ts",
   ],
   outdir: "src/__test__/.dist",
   external: ["react"],

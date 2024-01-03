@@ -1,7 +1,7 @@
 import { test, expect, jest } from "bun:test";
-import sync from "./index";
-import createStore from "../store";
-import extend from "../extend";
+import sync from "./plugin-sync";
+import createStore from "./store";
+import extend from "./extend";
 
 test("push calls the setup function with the extra args", async () => {
   const push = jest.fn((state: any, b: number) =>
