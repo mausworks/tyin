@@ -4,7 +4,6 @@ Typesafe state management in React for less!
 
 ![npm](https://img.shields.io/npm/v/tyin) ![GitHub Workflow (Release)](https://img.shields.io/github/actions/workflow/status/mausworks/tyin/release.yml)
 
-
 ✅ Tiny (<1K)  
 ✅ Ergonomic  
 ✅ Extensible
@@ -138,7 +137,7 @@ Tyin provides a way to query and mutate data upstream using the Sync plugin.
 
 It provides automatic deduplication based on the parameters that you provide for `pull`, or based on the state itself for `push` and `delete`. You can also cache the result by setting a `cacheDuration`.
 
-After the store has been set up we can, 
+After the store has been set up we can,
 pull the state when a component mounts by using the `usePull` hook. To push or delete, we can just call the functions directly on the `sync` API.
 
 ```tsx
@@ -150,14 +149,14 @@ import objectAPI from "tyin/plugin-object";
 import useErrors from "@/stores/useErrors";
 
 export type ProfileData = {
-  id: string;
+  id?: string;
   name: string;
   bio?: string;
 };
 
 export const useProfile = extend(storeHook<ProfileData | null>(null))
   .with(objectAPI())
-  .with(
+  .with((store) =>
     sync({
       pullOptions: { cacheDuration: 10000 },
       pull: async (id: string) => {
@@ -165,14 +164,25 @@ export const useProfile = extend(storeHook<ProfileData | null>(null))
           .then((res) => res.json())
           .catch(useErrors.push);
       },
-      push: async (state) => {
-        await fetch(`/api/profile/${state.id}`, {
-          method: "PUT",
-          body: JSON.stringify(state),
-        }).catch(useErrors.push);
+      push: async (profile) => {
+        if (!profile.id) {
+          await fetch("/api/profile", {
+            method: "POST",
+            body: JSON.stringify(profile),
+          })
+            .then(store.set)
+            .catch(useErrors.push);
+        } else {
+          await fetch(`/api/profile/${profile.id}`, {
+            method: "PUT",
+            body: JSON.stringify(profile),
+          }).catch(useErrors.push);
+        }
       },
-      delete: async (state) => {
-        await fetch(`/api/profile/${state.id}`, {
+      delete: async (profile) => {
+        if (!profile.id) return;
+
+        await fetch(`/api/profile/${profile.id}`, {
           method: "DELETE",
         }).catch(useErrors.push);
       },
@@ -182,23 +192,17 @@ export const useProfile = extend(storeHook<ProfileData | null>(null))
 
 type ProfileSettingsPageProps = { profileId: string };
 
-function ProfileSettingsPage({ profileId }: ProfileSettingsPage) {
+function ProfileSettingsPage({ profileId }: ProfileSettingsPage) {
   const { state: profile, status } = usePull(useProfile, profileId);
 
   if (status !== "loaded") return null;
 
   return (
     <Page>
-      <UserSettings 
-        profile={profile} 
-        onSave={useProfile.sync.push} 
-      />
-      <ProfileDangerZone 
-        profile={profile} 
-        onDelete={useProfile.sync.delete} 
-      />
+      <UserSettings profile={profile} onSave={useProfile.sync.push} />
+      <ProfileDangerZone profile={profile} onDelete={useProfile.sync.delete} />
     </Page>
-  )
+  );
 }
 ```
 
