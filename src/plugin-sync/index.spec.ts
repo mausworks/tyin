@@ -16,7 +16,7 @@ test("push calls the setup function with the extra args", async () => {
   expect(push).toHaveBeenCalledWith({ a: 1 }, 2);
 });
 
-test("pull calls the setup function with the given args, and sets the store to the result", async () => {
+test("pull calls the setup function with the given args and sets the store to the result", async () => {
   const pull = jest.fn((a: number) => Promise.resolve({ a }));
   const store = extend(createStore({ a: 1 }))
     .with(sync({ pull }))
