@@ -259,9 +259,9 @@ bun run src/test/size.ts
 This is the current output:
 
 ```txt
-export-all: 3043 bytes, 1411 gzipped
+export-all: 3043 bytes, 1407 gzipped
 export-common: 1469 bytes, 781 gzipped
-index: 1217 bytes, 631 gzipped
+plugin-sync: 1217 bytes, 630 gzipped
 hook: 584 bytes, 384 gzipped
 plugin-persist: 415 bytes, 305 gzipped
 plugin-array: 332 bytes, 190 gzipped
