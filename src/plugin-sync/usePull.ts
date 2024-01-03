@@ -1,15 +1,21 @@
 import { useCallback, useEffect, useState } from "react";
-import { PullFunction } from "../plugin-sync";
 import { StoreHook } from "../hook";
 import { AnyState } from "../store";
 
-export type SyncAPIWithPull<P extends PullFunction<any>> = {
-  sync: { pull: P };
+export type SyncFunction = (...args: any[]) => Promise<unknown>;
+
+export type SyncAPIWithPull<PULL extends SyncFunction> = {
+  sync: { pull: PULL };
 };
 
 export type PullStatus = "idle" | "loading" | "error" | "success";
 
-export default function usePull<T extends AnyState, P extends PullFunction<T>>(
+/**
+ * Automatically pull the state from the when the component mounts.
+ * @param useStore The store to pull from.
+ * @param args The args to pass to the pull function.
+ */
+export default function usePull<T extends AnyState, P extends SyncFunction>(
   useStore: StoreHook<T> & SyncAPIWithPull<P>,
   ...args: Parameters<P>
 ) {
