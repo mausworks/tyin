@@ -63,9 +63,10 @@ export type CacheOptions = {
  */
 export default function createCache<T>(options: CacheOptions = {}): Cache<T> {
   const entries = new Map<string, T>();
+  const defaultLifetime = options.lifetime ?? Infinity;
 
-  const set = (key: string, value: T, lifetime = options.lifetime) => {
-    if ((lifetime ?? Infinity) > 0) {
+  const set = (key: string, value: T, lifetime = defaultLifetime) => {
+    if (lifetime > 0) {
       entries.set(key, value);
       evict(key, lifetime);
     }
