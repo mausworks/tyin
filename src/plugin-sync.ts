@@ -4,7 +4,7 @@ import createCache from "./util-cache";
 import prune, { Pruned } from "./util-prune";
 
 /**
- * A function with that pulls the state from an external sourc using some arguments.
+ * A function that pulls the state from an external sourc using some arguments.
  * The function should return a promise that resolves with the new state.
  */
 export type PullFunction<T> = (...args: any[]) => Promise<T>;
