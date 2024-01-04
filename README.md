@@ -192,7 +192,7 @@ export const useProfile = extend(storeHook<ProfileData | null>(null))
 
 type ProfileSettingsPageProps = { profileId: string };
 
-function ProfileSettingsPage({ profileId }: ProfileSettingsPage) {
+function ProfileSettingsPage({ profileId }: ProfileSettingsPageProps) {
   const { state: profile, status } = usePull(useProfile, profileId);
 
   if (status !== "loaded") return null;
