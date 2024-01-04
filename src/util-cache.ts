@@ -1,9 +1,5 @@
-/** A value that will expire after a certain amount of time. */
-export type Transient<T> = readonly [T, number];
-/** A value that can be stored in the cache. */
-export type CacheInput<T> = T | Transient<T>;
 /** A factory function that returns a value, or a tuple of a value and a lifetime in milliseconds. */
-export type InputFactory<T> = () => CacheInput<T>;
+export type ValueFactory<T> = () => T;
 
 /** A function that returns a value from the cache. */
 export type CacheGetter<T> = {
@@ -14,7 +10,7 @@ export type CacheGetter<T> = {
    * @param key The key of the value to get.
    * @param create A factory function that returns a value, or a tuple of a value and a lifetime in milliseconds.
    */
-  (key: string, create: InputFactory<T> | Transient<() => T>): T;
+  (key: string, create: ValueFactory<T>, lifetime?: number): T;
 };
 
 /** A cache of values that can be either transient or permanent. */
@@ -31,8 +27,9 @@ export type Cache<T> = {
    * If the value is transient, it will be automatically evicted after its lifetime.
    * @param key A key to store the value under.
    * @param input A value, or a tuple of a value and a lifetime in milliseconds.
+   * @param lifetime (Optionally) How long to keep the value in the cache, in milliseconds.
    */
-  set: (key: string, input: CacheInput<T>) => T;
+  set: (key: string, input: T, lifetime?: number) => T;
   /**
    * Removes a value from the cache, optionally after a delay.
    * @param key The key of the value to evict.
@@ -51,15 +48,6 @@ export type CacheOptions = {
   lifetime?: number;
 };
 
-const getValue = <T>(input: CacheInput<T>) =>
-  Array.isArray(input) ? input[0] : input;
-const getLifetime = (input: CacheInput<any>, fallback = Infinity) =>
-  Array.isArray(input) ? input[1] ?? fallback : fallback;
-const createInput = <T>(
-  create: InputFactory<T> | Transient<() => T>
-): CacheInput<T> =>
-  typeof create === "function" ? create() : ([create[0](), create[1]] as const);
-
 /**
  * Creates a cache backed by a HashMap.
  * @param options Configure the cache.
@@ -76,11 +64,8 @@ const createInput = <T>(
 export default function createCache<T>(options: CacheOptions = {}): Cache<T> {
   const entries = new Map<string, T>();
 
-  const set = (key: string, input: CacheInput<T>) => {
-    const value = getValue(input);
-    const lifetime = getLifetime(input, options.lifetime);
-
-    if (lifetime > 0) {
+  const set = (key: string, value: T, lifetime = options.lifetime) => {
+    if ((lifetime ?? Infinity) > 0) {
       entries.set(key, value);
       evict(key, lifetime);
     }
@@ -88,12 +73,12 @@ export default function createCache<T>(options: CacheOptions = {}): Cache<T> {
     return value;
   };
 
-  const get = ((key: string, create?: InputFactory<T>) => {
+  const get = ((key: string, create?: ValueFactory<T>, lifetime?: number) => {
     const entry = entries.get(key);
 
     if (entry) return entry;
     else if (!create) return null;
-    else return set(key, createInput(create));
+    else return set(key, create(), lifetime);
   }) as CacheGetter<T>;
 
   const evict = (key: string, delay?: number) => {

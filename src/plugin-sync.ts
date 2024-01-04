@@ -237,13 +237,13 @@ const promiseCache = () => {
     const pendingKey = `P:${baseKey}`;
     const cacheKey = `C:${baseKey}`;
 
+    const loadDeduped = () =>
+      cache
+        .get(pendingKey, load, dedupeDuration)
+        .finally(() => cache.evict(pendingKey));
+
     return cache
-      .get(cacheKey, () => [
-        cache
-          .get(pendingKey, [load, dedupeDuration])
-          .finally(() => cache.evict(pendingKey)),
-        cacheDuration,
-      ])
+      .get(cacheKey, loadDeduped, cacheDuration)
       .catch(() => cache.evict(cacheKey));
   };
 };

@@ -11,7 +11,7 @@ test("set permanent value", () => {
 test("set transient value", async () => {
   const cache = createCache<number>();
 
-  expect(cache.set("a", [1, 5])).toEqual(1);
+  expect(cache.set("a", 1, 5)).toEqual(1);
   expect(cache.get("a")).toEqual(1);
 
   await new Promise((resolve) => setTimeout(resolve, 5.1));
