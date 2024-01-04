@@ -4,21 +4,19 @@ import createCache from "./util-cache";
 import prune, { Pruned } from "./util-prune";
 
 /**
- * A function that pulls the state from an external sourc using some arguments.
+ * A function that pulls the state from an external source using some arguments.
  * The function should return a promise that resolves with the new state.
  */
 export type PullFunction<T> = (...args: any[]) => Promise<T>;
 
 /**
- * A function that pushes the state to an external source,
- * optionally using some extra arguments.
+ * A function that pushes the state to an external source optionally using some extra arguments.
  * The function should return a promise that resolves when the push is complete.
  */
 export type PushFunction<T> = (state: T, ...extra: any[]) => Promise<unknown>;
 
 /**
- * A function that deletes the state from an external source,
- * optionally using some extra arguments.
+ * A function that deletes the state from an external source, optionally using some extra arguments.
  * The function should return a promise that resolves when the deletion is complete.
  */
 export type DeleteFunction<T> = (state: T, ...extra: any[]) => Promise<unknown>;
