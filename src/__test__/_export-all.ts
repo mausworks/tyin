@@ -6,4 +6,4 @@ export * from "../plugin-array";
 export * from "../plugin-object";
 export * from "../plugin-persist";
 export * from "../plugin-sync";
-export * from "../plugin-sync/usePull";
+export * from "../plugin-sync/useHydrate";
