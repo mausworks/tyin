@@ -133,27 +133,30 @@ export type SyncPlugin<T extends AnyState, R extends {}> = Plugin<
 >;
 
 /**
- * A plugin that adds `push` and `pull` methods to the store,
+ * Adds data fetching and mutation capabilities to a store,
  * allowing you to sync the state upstream and downstream using a method of your choice.
- * @param setup Define how to sync the state upstream and downstream.
+ * @param setup Define how to pull and sync the state.
  * @template T The type of the state.
- * @template P The type of the pull function.
+ * @template R The type of the sync functions setup.
  *
  * @example
  * ```ts
  * import storeHook from "tyin/hook";
- * import syncAPI from "tyin/plugin-sync";
+ * import sync from "tyin/plugin-sync";
  * import extend from "tyin/extend";
+ * import { Note } from "@/types";
  *
- * const useExample = extend(storeHook({ a: 1, b: 2 }))
+ * const useUserNotes = extend(storeHook<Note[]>([]))
  *   .with(
- *     syncAPI({
- *       push: (state, c: number) =>
- *         fetch(`/example/${state.a}?c=${c}`, {
+ *     sync({
+ *       push: (notes, userId: string) =>
+ *         fetch(`/api/notes/${userId}`, {
  *           method: "PUT",
- *           body: JSON.stringify(state),
+ *           body: JSON.stringify(notes),
  *         }),
- *       pull: (a: number) => fetch(`/example/${a}`).then((res) => res.json()),
+ *       pullOptions: { cacheDuration: 5000 },
+ *       pull: (userId: string) =>
+ *         fetch(`/api/notes/${userId}`).then((res) => res.json()),
  *     })
  *   )
  *   .seal();
