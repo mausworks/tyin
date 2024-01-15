@@ -142,68 +142,39 @@ pull the state when a component mounts by using the `usePull` hook. To push or d
 
 ```tsx
 import storeHook from "tyin/hook";
-import extend from "tyin/extend";
 import sync from "tyin/plugin-sync";
-import usePull from "tyin/plugin-sync/usePull";
-import objectAPI from "tyin/plugin-object";
-import useErrors from "@/stores/useErrors";
+import extend from "tyin/extend";
+import useHydrate from "tyin/plugin-sync/useHydrate";
+import { Note } from "@/types";
 
-export type ProfileData = {
-  id?: string;
-  name: string;
-  bio?: string;
-};
-
-export const useProfile = extend(storeHook<ProfileData | null>(null))
-  .with(objectAPI())
-  .with((store) =>
+const useUserNotes = extend(storeHook<Note[]>([]))
+  .with(
     sync({
-      pullOptions: { cacheDuration: 10000 },
-      pull: async (id: string) => {
-        return await fetch(`/api/profile/${id}`)
-          .then((res) => res.json())
-          .catch(useErrors.push);
-      },
-      push: async (profile) => {
-        if (!profile.id) {
-          await fetch("/api/profile", {
-            method: "POST",
-            body: JSON.stringify(profile),
-          })
-            .then(store.set)
-            .catch(useErrors.push);
-        } else {
-          await fetch(`/api/profile/${profile.id}`, {
-            method: "PUT",
-            body: JSON.stringify(profile),
-          }).catch(useErrors.push);
-        }
-      },
-      delete: async (profile) => {
-        if (!profile.id) return;
-
-        await fetch(`/api/profile/${profile.id}`, {
-          method: "DELETE",
-        }).catch(useErrors.push);
-      },
+      push: (notes, userId: string) =>
+        fetch(`/api/notes/${userId}`, {
+          method: "PUT",
+          body: JSON.stringify(notes),
+        }),
+      pullOptions: { cacheDuration: 5000 },
+      pull: (userId: string) =>
+        fetch(`/api/notes/${userId}`).then((res) => res.json()),
     })
   )
   .seal();
 
-type ProfileSettingsPageProps = { profileId: string };
+type UserNotesPageProps = {
+  userId: string;
+};
 
-function ProfileSettingsPage({ profileId }: ProfileSettingsPageProps) {
-  const { state: profile, status } = usePull(useProfile, profileId);
+const UserNotesPage = ({ userId }: UserNotesPageProps) => {
+  const hydration = useHydrate(useUserNotes.sync.pull, [userId], {
+    onMount: true,
+    onOnline: true,
+    onFocus: true,
+  });
 
-  if (status !== "loaded") return null;
-
-  return (
-    <Page>
-      <UserSettings profile={profile} onSave={useProfile.sync.push} />
-      <ProfileDangerZone profile={profile} onDelete={useProfile.sync.delete} />
-    </Page>
-  );
-}
+  return <NotesList notes={notes} loading={state.isLoading} />;
+};
 ```
 
 ### Tyin without React
