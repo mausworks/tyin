@@ -57,7 +57,7 @@ const Pagination = ({ maxPage }: PaginationProps) => {
 
 ### Handling complex states
 
-Real life applications are often complex, let's add the `patch` function from the object plugin to handle partial updates:
+Real life applications are often complex, so let's add the `patch` function from the object plugin to handle partial updates:
 
 ```tsx
 import storeHook from "tyin/hook";
@@ -145,6 +145,7 @@ import storeHook from "tyin/hook";
 import sync from "tyin/plugin-sync";
 import extend from "tyin/extend";
 import useHydrate from "tyin/plugin-sync/useHydrate";
+import { use } from "react";
 import { Note } from "@/types";
 
 const useUserNotes = extend(storeHook<Note[]>([]))
@@ -162,7 +163,7 @@ const useUserNotes = extend(storeHook<Note[]>([]))
   )
   .seal();
 
-type UserNotesPageProps = {
+type UserNotesListProps = {
   userId: string;
 };
 
@@ -172,8 +173,9 @@ const UserNotesPage = ({ userId }: UserNotesPageProps) => {
     onOnline: true,
     onFocus: true,
   });
+  const notes = use(hydration);
 
-  return <NotesList notes={notes} loading={state.isLoading} />;
+  return <NotesList readonly notes={notes} />;
 };
 ```
 
