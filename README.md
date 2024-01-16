@@ -2,7 +2,7 @@
 
 Typesafe state management in React for less!
 
-![npm](https://img.shields.io/npm/v/tyin) ![GitHub Workflow (Release)](https://img.shields.io/github/actions/workflow/status/mausworks/tyin/release.yml)
+[![npm](https://img.shields.io/npm/v/tyin)](https://npmjs.org/tyin) [![GitHub Workflow (Release)](https://img.shields.io/github/actions/workflow/status/mausworks/tyin/release.yml)](https://github.com/mausworks/tyin/actions/workflows/release.yml)
 
 ✅ Tiny (<1K)  
 ✅ Ergonomic  
