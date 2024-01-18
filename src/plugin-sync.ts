@@ -26,7 +26,7 @@ export type ExtraArgs<T> = T extends (state: any, ...args: infer U) => any
   ? U
   : never;
 
-/** Options to use when syncing the state with an external source. */
+/** Configures how to sync the state. */
 export type SyncOptions<T extends AnyState, F extends SyncFunction<T>> = {
   /**
    * The duration to cache the result of the sync function for, in milliseconds.
@@ -41,15 +41,14 @@ export type SyncOptions<T extends AnyState, F extends SyncFunction<T>> = {
    */
   dedupeTimeout?: number;
   /**
-   * A function that returns a hash of the state and any extra arguments.
-   * This is used to determine whether the state has changed since the last sync,
-   * so that multiple syncs with the same state can be deduplicated, and the result can be cached.
+   * Hash the state to determine whether it has changed since the last sync.
    *
-   * Uses JSON.stringify by default.
+   * Uses `JSON.stringify` by default.
    */
   hash?: (state: T, ...extra: ExtraArgs<F>) => string;
 };
 
+/** Configure how to pull a new state into the store. */
 export type PullOptions<P extends PullFunction<any>> = {
   /**
    * The duration to cache the result of the pull function for, in milliseconds.
@@ -64,12 +63,9 @@ export type PullOptions<P extends PullFunction<any>> = {
    */
   dedupeTimeout?: number;
   /**
-   * A function that returns a hash of the arguments.
-   * This is used to determine whether the arguments have changed since the last pull,
-   * so that multiple pulls with the same arguments can be deduplicated,
-   * and the result can be cached.
+   * Hash the arguments to determine whether they have changed since the last pull.
    *
-   * Defaults to JSON.stringify.
+   * Uses `JSON.stringify` by default.
    */
   hash?: (...args: Parameters<P>) => string;
 };
