@@ -20,7 +20,7 @@ const initialState: SyncState = {
  * @param fn The function to use.
  * @example
  * ```tsx
- * import useSync from "tyin/plugin-sync/useSync";
+ * import useSync from "tyin/useSync";
  * import useNewNotes from "@/stores/useNewNotes";
  *
  * const SyncNotesButton = () => {

@@ -2,12 +2,14 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import useSync, { SyncState } from "./useSync";
 
 /**
- * A function that hydrates a state upstream or downstream.
+ * A function that hydrates a state.
+ *
  * Note: This function is expected to be a sync function from `tyin/plugin-sync`,
- * but can be any async function as long as it handles its own promise deduplication and caching.
+ * but can be any async function as long as it handles its own promise deduplication.
  */
 export type Hydrator = (...args: any[]) => Promise<any>;
 
+/** Configures the hydrate hook. */
 export type HydrateOptions = {
   /**
    * Hydrate when the component mounts.
@@ -36,14 +38,20 @@ export type HydrateOptions = {
   interval?: number;
   /**
    * How long it takes before data is considered stale, in milliseconds.
+   *
+   * Defaults to `0`.
    */
-  staleDuration?: number;
+  staleTime?: number;
 };
 
-export type HydrationState = SyncState & {
+export type HydrationState = {
+  /** Whether the data has gone stale and needs to be refreshed. */
   isStale: boolean;
+  /** Whether the data has been hydrated at least once. */
   isHydrated: boolean;
 };
+
+export type Hydration<T> = Promise<T> & HydrationState & SyncState;
 
 /**
  * Calls the given sync function on mount to hydrate a state, and then again when the `args` change.
@@ -59,7 +67,7 @@ export type HydrationState = SyncState & {
  * @param options (Optional) Configure when to hydrate the state.
  * @example
  * ```tsx
- * import useHydrate from "tyin/plugin-sync/useHydrate";
+ * import useHydrate from "tyin/useHydrate";
  * import useUserNotes from "@/stores/useUserNotes";
  *
  * type UserNoteListProps = { userId: string };
@@ -80,7 +88,7 @@ export default function useHydrate<T extends Hydrator>(
   args: Parameters<T>,
   options: HydrateOptions = {}
 ): ReturnType<T> & HydrationState {
-  const { interval = Infinity, staleDuration = 0 } = options;
+  const { interval = Infinity, staleTime = 0 } = options;
 
   const staleHandle = useRef<number | undefined>(undefined);
   const [isStale, setIsStale] = useState(true);
@@ -98,12 +106,12 @@ export default function useHydrate<T extends Hydrator>(
 
     window.clearTimeout(staleHandle.current);
 
-    if (staleDuration > 0 && staleDuration !== Infinity) {
+    if (staleTime > 0 && staleTime !== Infinity) {
       staleHandle.current = window.setTimeout(() => {
         setIsStale(true);
-      }, staleDuration);
+      }, staleTime);
     }
-  }, [sync, staleDuration, ...args]);
+  }, [sync, staleTime, ...args]);
 
   useEffect(() => {
     const handle = staleHandle.current;
