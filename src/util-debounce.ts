@@ -10,14 +10,14 @@
  *
  * const useExample = storeHook({ a: 1, b: 2 });
  *
- * useExample.subscribe(debounce(5000, (_, newState) => {
+ * useExample.subscribe(debounce((_, newState) => {
  *   fetch("/draft", { method: "PUT", body: JSON.stringify(newState) });
- * }));
+ * }, 5000));
  * ```
  */
 export default function debounce<T extends (...args: any[]) => void>(
-  timeout: number,
-  callback: T
+  callback: T,
+  timeout: number
 ): T {
   if (timeout <= 0) return callback;
 

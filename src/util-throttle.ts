@@ -11,9 +11,9 @@
  *
  * const useScrollX = extend(storeHook(0))
  *   .with((store) => {
- *      const onScroll = throttle(50, () => {
+ *      const onScroll = throttle(() => {
  *        store.set(window.scrollX);
- *      });
+ *      }, 50);
  *
  *      window.addEventListener("scroll", onScroll);
  *    })
@@ -21,8 +21,8 @@
  * ```
  */
 export default function throttle<T extends (...args: any[]) => void>(
-  duration: number,
-  callback: T
+  callback: T,
+  duration: number
 ): T {
   if (duration <= 0) return callback;
 

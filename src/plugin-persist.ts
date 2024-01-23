@@ -69,11 +69,11 @@ const persist = <T extends AnyState>(
     if (stored) store.set(map(JSON.parse(stored)));
 
     store.subscribe(
-      debounce(delay, (_, newState) => {
+      debounce((_, newState) => {
         if (!filter(newState)) return;
 
         storage?.setItem(name, JSON.stringify(map(newState)));
-      })
+      }, delay)
     );
   };
 };

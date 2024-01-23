@@ -3,7 +3,7 @@ import throttle from "./util-throttle";
 
 test("throttle", async () => {
   const callback = jest.fn();
-  const throttled = throttle(3, callback);
+  const throttled = throttle(callback, 3);
 
   throttled();
 

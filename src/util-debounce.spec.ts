@@ -3,7 +3,7 @@ import debounce from "./util-debounce";
 
 test("debounce", async () => {
   const callback = jest.fn();
-  const debounced = debounce(3, callback);
+  const debounced = debounce(callback, 3);
 
   debounced();
   debounced();
