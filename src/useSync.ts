@@ -1,7 +1,5 @@
 import { useCallback, useState } from "react";
 
-export type AsyncFunction = (...args: any[]) => Promise<any>;
-
 export type SyncState = {
   isDone: boolean;
   isLoading: boolean;
@@ -40,7 +38,7 @@ const initialState: SyncState = {
  * }
  * ```
  */
-export default function useSync<T extends AsyncFunction>(
+export default function useSync<T extends (...args: any[]) => Promise<any>>(
   fn: T
 ): readonly [T, SyncState] {
   const [state, setState] = useState(initialState);

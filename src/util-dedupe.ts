@@ -1,3 +1,7 @@
+/** A function that returns a promise. */
+export type AsyncFunction<A = any> = (...args: A[]) => Promise<any>;
+
+/** Configures how to deduplicate calls to an async function. */
 export type DedupeOptions<T extends AsyncFunction> = {
   /**
    * Optionally cache the result of the function for a given duration
@@ -21,9 +25,6 @@ export type DedupeOptions<T extends AsyncFunction> = {
    */
   hash?: (...args: Parameters<T>) => string;
 };
-
-/** A function that returns a promise. */
-export type AsyncFunction<A = any> = (...args: A[]) => Promise<any>;
 
 /**
  * Returns a function that deduplicates (and optionally caches) the result of an async function
