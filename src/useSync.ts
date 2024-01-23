@@ -1,15 +1,14 @@
 import { useCallback, useState } from "react";
 
 export type SyncState = {
+  /** Whether the sync function has settled. */
   isDone: boolean;
+  /** Whether the sync function is currently running. */
   isLoading: boolean;
-  isSuccess?: boolean;
-  error?: unknown;
-};
-
-const initialState: SyncState = {
-  isLoading: false,
-  isDone: false,
+  /** Whether the sync function was successful. */
+  isSuccess: boolean;
+  /** The last error thrown by the sync function. */
+  error: unknown;
 };
 
 /**
@@ -45,14 +44,14 @@ export default function useSync<T extends (...args: any[]) => Promise<any>>(
 
   const sync = useCallback(
     async (...args: Parameters<T>) => {
-      setState({ isLoading: true, isDone: false });
+      setState(startingState);
 
       try {
         const result = await fn(...args);
-        setState({ isLoading: false, isDone: true, isSuccess: true });
+        setState(successState);
         return result;
       } catch (error) {
-        setState({ isLoading: false, isDone: true, isSuccess: false, error });
+        setState(errorState(error));
         throw error;
       }
     },
@@ -61,3 +60,24 @@ export default function useSync<T extends (...args: any[]) => Promise<any>>(
 
   return [sync as T, state] as const;
 }
+
+const initialState: SyncState = Object.freeze({
+  isLoading: false,
+  isDone: false,
+  isSuccess: false,
+  error: null,
+});
+
+const startingState = Object.freeze({
+  ...initialState,
+  isLoading: true,
+});
+
+const successState = Object.freeze({
+  ...initialState,
+  isDone: true,
+  isSuccess: true,
+});
+
+const errorState = (error: unknown): SyncState =>
+  Object.freeze({ isLoading: false, isDone: true, isSuccess: false, error });
