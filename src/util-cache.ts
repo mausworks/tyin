@@ -1,4 +1,4 @@
-/** A factory function that returns a value, or a tuple of a value and a lifetime in milliseconds. */
+/** A function that returns a value. */
 export type ValueFactory<T> = () => T;
 
 /** A function that returns a value from the cache. */
@@ -8,7 +8,8 @@ export type CacheGetter<T> = {
   /**
    * Gets the value from the cache, or creates (and stores) it if it is not found.
    * @param key The key of the value to get.
-   * @param create A factory function that returns a value, or a tuple of a value and a lifetime in milliseconds.
+   * @param create A factory function that returns a value.
+   * @param lifetime (Optionally) How long to keep the value in the cache, in milliseconds.
    */
   (key: string, create: ValueFactory<T>, lifetime?: number): T;
 };
@@ -17,9 +18,7 @@ export type CacheGetter<T> = {
 export type Cache<T> = {
   /**
    * Gets a value from the cache. If the value is not in the cache, and no factory function is provided, returns `null`,
-   * otherwise sets the value and returns it.
-   * @param key The key of the value to get.
-   * @param create A factory function that returns a value, or a tuple of a value and a lifetime in milliseconds.
+   * otherwise sets the value and returns the value.
    */
   get: CacheGetter<T>;
   /**
@@ -40,10 +39,13 @@ export type Cache<T> = {
   evict: (key: string, delay?: number) => void;
 };
 
+/** Configure how to create a cache. */
 export type CacheOptions = {
   /**
-   * How long to keep the value in the cache, in milliseconds.
-   * If not set, the value will be kept indefinitely.
+   * How long to keep values in the cache for by default, in milliseconds.
+   * If set to `Infinity`, values will be kept forever.
+   *
+   * Defaults to `Infinity`.
    */
   lifetime?: number;
 };
@@ -56,7 +58,7 @@ export type CacheOptions = {
  * ```ts
  * import createCache from "tyin/cache";
  *
- * const scores = createCache<number>({ lifetime: 1000 });
+ * const scores = createCache<number>();
  *
  * const exampleScore = cache.get("example", () => 50);
  * ```
