@@ -14,18 +14,17 @@ function* serialize(input: unknown): Iterable<number> {
   } else if (typeof input === "number") {
     yield 0xfffffff1;
     view.setFloat64(0, input);
-    yield view.getUint32(0);
-    yield view.getUint32(4);
+    yield view.getInt32(0);
+    yield view.getInt16(4);
+    yield view.getInt16(6);
   } else if (typeof input === "bigint") {
-    yield 0xffffff2;
+    yield 0xfffffff2;
     yield* serialize(input.toString(36));
   } else if (typeof input === "string") {
     yield 0xfffffff3;
-    for (let i = 0; i < input.length; i += 4) {
-      yield (input.charCodeAt(i + 0) << 24) |
-        (input.charCodeAt(i + 1) << 16) |
-        (input.charCodeAt(i + 2) << 8) |
-        (input.charCodeAt(i + 3) << 0);
+    yield input.length | 0;
+    for (let i = 0; i < input.length; i += 2) {
+      yield input.charCodeAt(i) | (input.charCodeAt(i + 1) << 16);
     }
   } else if (Array.isArray(input)) {
     yield 0xfffffff4;
