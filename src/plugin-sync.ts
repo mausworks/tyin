@@ -70,24 +70,27 @@ export type PullOptions<P extends PullFunction<any>> = {
   hash?: (...args: Parameters<P>) => string;
 };
 
-export type SyncFunctions<T, R extends {}> = {
-  [K in Extract<keyof R, string>]: K extends `pull${infer _}`
+/** Extracts a record of the user-defined sync functions from a setup object. */
+export type SyncFunctions<T, S extends object> = {
+  [K in Extract<keyof S, string>]: K extends `pull${infer _}`
     ? K extends `${infer _}Options`
       ? never
       : PullFunction<T>
     : SyncFunction<T>;
 };
 
-export type CompiledSyncFunctions<R extends {}> = {
-  [K in keyof R as K extends `${infer _}Options`
+/** Extracts the a record of the compiled sync function types from a setup object. */
+export type CompiledSyncFunctions<S extends object> = {
+  [K in keyof S as K extends `${infer _}Options`
     ? never
-    : K]: R[K] extends AsyncFunction
+    : K]: S[K] extends AsyncFunction
     ? K extends `pull${infer _}`
-      ? R[K]
-      : CompiledSyncFunction<R[K]>
+      ? S[K]
+      : CompiledSyncFunction<S[K]>
     : never;
 };
 
+/** The suggested sync functions. */
 export type SyncFunctionSuggestions<T extends AnyState = AnyState> = {
   /** Define how to sync the state upstream. */
   push?: SyncFunction<T>;
@@ -98,19 +101,20 @@ export type SyncFunctionSuggestions<T extends AnyState = AnyState> = {
 };
 
 /** The API provided by the sync plugin. */
-export type SyncAPI<S extends {}> = {
+export type SyncAPI<S extends object> = {
   sync: CompiledSyncFunctions<S>;
 };
 
-export type SyncFunctionOptions<T extends AnyState, R extends {}> = {
-  [K in Extract<keyof R, string> as K extends `${infer _}Options`
+/** Extracts the options for the sync functions from a setup object. */
+export type SyncFunctionOptions<T extends AnyState, S extends object> = {
+  [K in Extract<keyof S, string> as K extends `${infer _}Options`
     ? never
     : `${K}Options`]: K extends `pull${infer _}`
-    ? R[K] extends PullFunction<T>
-      ? PullOptions<R[K]>
+    ? S[K] extends PullFunction<T>
+      ? PullOptions<S[K]>
       : never
-    : R[K] extends SyncFunction<T>
-    ? SyncOptions<T, R[K]>
+    : S[K] extends SyncFunction<T>
+    ? SyncOptions<T, S[K]>
     : never;
 };
 
@@ -130,10 +134,10 @@ export type SyncPlugin<T extends AnyState, R extends {}> = Plugin<
 
 /**
  * Adds data fetching and mutation capabilities to a store,
- * allowing you to sync the state upstream and downstream using a method of your choice.
+ * allowing you to sync the state using a method of your choice.
  * @param setup Define how to pull and sync the state.
  * @template T The type of the state.
- * @template R The type of the sync functions setup.
+ * @template S The user-defined sync functions and their options.
  *
  * @example
  * ```ts
@@ -158,9 +162,9 @@ export type SyncPlugin<T extends AnyState, R extends {}> = Plugin<
  *   .seal();
  * ```
  */
-export default function sync<T extends AnyState, R extends {}>(
-  setup: SyncSetup<T, R>
-): SyncPlugin<T, R> {
+export default function sync<T extends AnyState, S extends {}>(
+  setup: SyncSetup<T, S>
+): SyncPlugin<T, S> {
   const cache = createCache<Promise<any>>();
 
   return (store) => {
@@ -201,7 +205,7 @@ export default function sync<T extends AnyState, R extends {}>(
           });
     };
 
-    const sync = {} as CompiledSyncFunctions<R>;
+    const sync: any = {};
 
     for (const [name, fn] of Object.entries(setup)) {
       if (typeof fn !== "function") continue;
