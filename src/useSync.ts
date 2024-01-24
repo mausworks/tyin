@@ -68,12 +68,12 @@ const initialState: SyncState = Object.freeze({
   error: null,
 });
 
-const startingState = Object.freeze({
+const startingState: SyncState = Object.freeze({
   ...initialState,
   isLoading: true,
 });
 
-const successState = Object.freeze({
+const successState: SyncState = Object.freeze({
   ...initialState,
   isDone: true,
   isSuccess: true,

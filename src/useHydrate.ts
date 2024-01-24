@@ -2,14 +2,14 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import useSync, { SyncState } from "./useSync";
 
 /**
- * A function that hydrates a state.
+ * A function that hydrates a state somewhere.
  *
  * Note: This function is expected to be a sync function from `tyin/plugin-sync`,
- * but can be any async function as long as it handles its own promise deduplication.
+ * but it can be any async function as long as it handles its own promise deduplication.
  */
 export type Hydrator = (...args: any[]) => Promise<any>;
 
-/** Configures the hydrate hook. */
+/** Configures the `useHydrate` hook. */
 export type HydrateOptions = {
   /**
    * Hydrate when the component mounts.
@@ -18,26 +18,27 @@ export type HydrateOptions = {
    */
   onMount?: boolean;
   /**
-   * Hydrate when the window or tab is (re)focused.
+   * Rehydrate when the window or tab is focused.
    *
    * Defaults to `false`.
    */
-  onFocused?: boolean;
+  onFocus?: boolean;
   /**
-   * Hydrate when connection is regained.
+   * Rehydrate when connection status changes to online.
    *
    * Defaults to `true`.
    */
   onOnline?: boolean;
   /**
-   * Hydrate at the given interval, in milliseconds.
+   * Rehydrate at a given interval, in milliseconds.
    * Set to `Infinity` to disable the interval.
    *
    * Defaults to `Infinity`.
    */
   interval?: number;
   /**
-   * How long it takes before data is considered stale, in milliseconds.
+   * How long before the result is considered stale and can be rehydrated, in milliseconds.
+   * If set to `Infinity`, rehydration will be disabled entirely, regardless of the other options.
    *
    * Defaults to `0`.
    */
@@ -45,28 +46,29 @@ export type HydrateOptions = {
 };
 
 export type HydrationState = {
-  /** Whether the data has gone stale and needs to be refreshed. */
+  /** Whether the data has gone stale and can be refreshed. */
   isStale: boolean;
   /** Whether the data has been hydrated at least once. */
   isHydrated: boolean;
 };
 
-export type Hydration<T> = Promise<T> & HydrationState & SyncState;
+export type Hydration<T extends Promise<any>> = T & HydrationState & SyncState;
 
 /**
  * Calls the given sync function on mount to hydrate a state, and then again when the `args` change.
- * Depending on the options, it may also be called when the window or tab is (re)focused,
+ * Depending on the options, it may also be called when the window or tab is focused,
  * when the connection is regained, or at a regular interval.
  *
  * The returned promise is the result of the last call to the sync function,
  * augmented with information about the hydration state.
- * @param hydrate A function that syncs a state; either upstream or downstream.
+ * @param hydrate A function that syncs a state.
  * This function is expected to be a function from `tyin/plugin-sync`,
- * but it can be any async function as long as it handles its own deduplication.
- * @param args The arguments to pass to the sync function, if any.
+ * but it can be any async function as long as it handles its own promise deduplication.
+ * @param args The arguments to pass to the sync function, if any. When changed, the state will be rehydrated.
  * @param options (Optional) Configure when to hydrate the state.
  * @example
  * ```tsx
+ * import { use } from "react";
  * import useHydrate from "tyin/useHydrate";
  * import useUserNotes from "@/stores/useUserNotes";
  *
@@ -79,7 +81,9 @@ export type Hydration<T> = Promise<T> & HydrationState & SyncState;
  *     onFocus: true,
  *   });
  *
- *   return <NoteList notes={userNotes} isLoading={hydration.isLoading} />;
+ *   use(hydration);
+ *
+ *   return <NoteList notes={notes} isLoading={hydration.isLoading} />;
  * };
  * ```
  */
@@ -87,15 +91,17 @@ export default function useHydrate<T extends Hydrator>(
   hydrate: T,
   args: Parameters<T>,
   options: HydrateOptions = {}
-): ReturnType<T> & HydrationState {
+): Hydration<ReturnType<T>> {
   const { interval = Infinity, staleTime = 0 } = options;
-
-  const staleHandle = useRef<number | undefined>(undefined);
+  const [sync, syncState] = useSync(hydrate);
   const [isStale, setIsStale] = useState(true);
   const [isHydrated, setIsHydrated] = useState(false);
-  const [sync, syncState] = useSync(hydrate);
   const [promise, setPromise] = useState(new Promise<any>(() => {}));
+  const staleHandle = useRef<number | undefined>(undefined);
+
   const run = useCallback(async () => {
+    if (syncState.isLoading || !isStale) return;
+
     const promise = sync(...args);
     setPromise(promise);
 
@@ -114,20 +120,20 @@ export default function useHydrate<T extends Hydrator>(
   }, [sync, staleTime, ...args]);
 
   useEffect(() => {
-    const handle = staleHandle.current;
-    return () => window.clearTimeout(handle);
-  }, []);
-
-  useEffect(() => {
     if (!isHydrated && (options.onMount ?? true)) run();
   }, [run, isHydrated, options.onMount]);
 
+  useEffect(() => setIsStale(true), args);
   useEffect(() => {
-    if (!options.onFocused) return;
+    if (isHydrated) run();
+  }, [...args, run, isHydrated]);
+
+  useEffect(() => {
+    if (!options.onFocus) return;
 
     addEventListener("focus", run);
     return () => removeEventListener("focus", run);
-  }, [run, options.onFocused]);
+  }, [run, options.onFocus]);
 
   useEffect(() => {
     if (interval <= 0 || interval === Infinity) return;
@@ -142,6 +148,11 @@ export default function useHydrate<T extends Hydrator>(
     window.addEventListener("online", run);
     return () => window.removeEventListener("online", run);
   }, [run, options.onOnline]);
+
+  useEffect(() => {
+    const handle = staleHandle.current;
+    return () => window.clearTimeout(handle);
+  }, []);
 
   return Object.assign(promise as ReturnType<T>, syncState, {
     isStale,
