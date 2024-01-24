@@ -208,10 +208,9 @@ export default function sync<T extends AnyState, R extends {}>(
 
       const options = (setup as any)[`${name}Options`];
 
-      (sync as any)[name] =
-        name === "pull"
-          ? cachedPull(fn, options || {})
-          : cachedSync(fn, options || {});
+      sync[name] = name.startsWith("pull")
+        ? cachedPull(fn, options || {})
+        : cachedSync(fn, options || {});
     }
 
     return { sync };
