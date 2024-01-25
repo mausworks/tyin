@@ -65,6 +65,7 @@ const bindHook = <T extends AnyState>(
     ? useSelectValue
     : useSelectMemoizedValue;
 };
+
 /**
  * Creates a hook that reacts to state changes within a store.
  * The returned value is both a function and a `StoreAPI` object,
