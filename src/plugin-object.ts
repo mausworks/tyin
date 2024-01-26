@@ -14,7 +14,7 @@ export type MergeState<T extends ObjectLike | null, U = Partial<T>> = (
   right: U
 ) => T & U;
 
-export type ObjectStoreOptions<T extends ObjectLike | null> = {
+export type ObjectAPIOptions<T extends ObjectLike | null> = {
   merge?: MergeState<T>;
 };
 
@@ -73,7 +73,7 @@ const mergeLeft = <T extends ObjectLike | null, U = Partial<T>>(
  */
 const objectAPI =
   <T extends ObjectLike | null>(
-    options?: ObjectStoreOptions<T>
+    options?: ObjectAPIOptions<T>
   ): ObjectAPIPlugin<T> =>
   (store) => ({
     size: () => Object.keys(store.get() ?? {}).length,

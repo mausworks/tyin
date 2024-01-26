@@ -1,6 +1,8 @@
 # 👔 Tyin
 
-**Typesafe state management in React for less!**
+Typesafe state management in React for less!
+
+[![npm](https://img.shields.io/npm/v/tyin)](https://npmjs.org/tyin) [![GitHub Workflow (Release)](https://img.shields.io/github/actions/workflow/status/mausworks/tyin/release.yml)](https://github.com/mausworks/tyin/actions/workflows/release.yml)
 
 ✅ Tiny (<1K)  
 ✅ Ergonomic  
@@ -53,7 +55,9 @@ const Pagination = ({ maxPage }: PaginationProps) => {
 };
 ```
 
-Real life applications are often more complex, though, so let's add the `patch` function from the object plugin to handle partial updates:
+### Handling complex states
+
+Real life applications are often complex, so let's add the `patch` function from the object plugin to handle partial updates:
 
 ```tsx
 import storeHook from "tyin/hook";
@@ -79,7 +83,9 @@ const UserNameInput = () => {
 };
 ```
 
-Tyin also ships with a convenience plugin for arrays—because not every state is an object!
+### Handling arrays
+
+Tyin ships with a convenience plugin for arrays—because not every state is an object!
 
 In this example, we will add it, along with the persist plugin,
 and a custom setter called `complete`:
@@ -125,7 +131,60 @@ const TodoApp = () => {
 };
 ```
 
-We can also use Tyin outside of React:
+### Data fetching with Tyin Sync
+
+Tyin provides a way to query and mutate data upstream using the Sync plugin.
+
+It provides automatic deduplication based on the parameters that you provide for `pull`, or based on the state itself for `push` and `delete`. You can also cache the result by setting a `cacheDuration`.
+
+After the store has been set up we can,
+pull the state when a component mounts by using the `usePull` hook. To push or delete, we can just call the functions directly on the `sync` API.
+
+```tsx
+import storeHook from "tyin/hook";
+import sync from "tyin/plugin-sync";
+import extend from "tyin/extend";
+import useHydrate from "tyin/plugin-sync/useHydrate";
+import { use } from "react";
+import { Note } from "@/types";
+
+const useUserNotes = extend(storeHook<Note[]>([]))
+  .with(
+    sync({
+      push: (notes, userId: string) =>
+        fetch(`/api/notes/${userId}`, {
+          method: "PUT",
+          body: JSON.stringify(notes),
+        }),
+      pullOptions: { cacheDuration: 5000 },
+      pull: (userId: string) =>
+        fetch(`/api/notes/${userId}`).then((res) => res.json()),
+    })
+  )
+  .seal();
+
+type UserNotesListProps = {
+  userId: string;
+};
+
+const UserNotesPage = ({ userId }: UserNotesPageProps) => {
+  const hydration = useHydrate(useUserNotes.sync.pull, [userId], {
+    onMount: true,
+    onOnline: true,
+    onFocus: true,
+  });
+  const notes = use(hydration);
+
+  return <NotesList readonly notes={notes} />;
+};
+```
+
+### Tyin without React
+
+Tyin works just fine without React, in fact,
+React is just a `devDependency` for it.
+
+Unless you import `storeHook` or other React-specific functionality, you can use Tyin anywhere. Just replace `storeHook` with `createStore`.
 
 ```ts
 import createStore from "tyin/store";
@@ -173,14 +232,15 @@ bun run src/test/size.ts
 This is the current output:
 
 ```txt
-export-all: 1619 bytes, 832 gzipped
-export-common: 1309 bytes, 722 gzipped
-hook: 529 bytes, 350 gzipped
-plugin-persist: 415 bytes, 304 gzipped
+export-all: 2914 bytes, 1357 gzipped
+export-common: 1469 bytes, 781 gzipped
+plugin-sync: 1089 bytes, 571 gzipped
+hook: 584 bytes, 384 gzipped
+plugin-persist: 415 bytes, 305 gzipped
 plugin-array: 332 bytes, 190 gzipped
-plugin-object: 286 bytes, 226 gzipped
+plugin-object: 286 bytes, 225 gzipped
+extend: 272 bytes, 191 gzipped
 store: 245 bytes, 212 gzipped
-extend: 167 bytes, 138 gzipped
 ```
 
 So, that means if you import everything; Tyin will add ~900 bytes to your bundle size,
@@ -259,3 +319,18 @@ So why not replace custom state setters with generic ones?
 
 At this point, I realized that zustand ships a lot of things that I have no interest in,
 so I wanted to make something simpler that only satisfies my requirements, and Tyin is the result!
+
+## Module naming strategy
+
+Here are the general naming guidelines:
+
+- Use no prefix for top-level APIs (example: `store.ts`)
+- Use the `plugin-` prefix for plugins (example: `plugin-object.ts`)
+- Functions that are related to a plugin may be exported from a folder with the plugin name (example: `plugin-sync/usePull.ts`)
+- Use the `util-` prefix for utility functions (example: `util-throttle.ts`)
+- Utils may only export a single function (and related types)
+
+_Keep in mind that every module in the project is intended for external consumption_
+
+- Every file should have a default export (with a good default name)
+- Default exports must be documented and provide a clear example of usage

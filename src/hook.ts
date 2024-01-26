@@ -1,4 +1,4 @@
-import React from "react";
+import { useRef, useSyncExternalStore } from "react";
 import createStore, {
   StoreAPI,
   StateComparer,
@@ -37,14 +37,16 @@ export type StateSelectorHook<T> = {
  */
 export type StoreHook<T extends AnyState> = StateSelectorHook<T> & StoreAPI<T>;
 
-function bindHook<T extends AnyState>(
+const bindHook = <T extends AnyState>(
   store: StoreAPI<T>
-): StateSelectorHook<T> {
-  const useSelector = (
+): StateSelectorHook<T> => {
+  const useSelectValue = (selector: StateSelector<any> = (state) => state) =>
+    selector(store.get());
+  const useSelectMemoizedValue = (
     selector: StateSelector<any> = (state) => state,
     equals: StateComparer<any> = Object.is
   ) => {
-    const oldRef = React.useRef<any>();
+    const oldRef = useRef<any>();
     const select = () => {
       const oldValue = oldRef.current;
       const newValue = selector(store.get());
@@ -56,11 +58,13 @@ function bindHook<T extends AnyState>(
       }
     };
 
-    return React.useSyncExternalStore(store.subscribe, select, select);
+    return useSyncExternalStore(store.subscribe, select, select);
   };
 
-  return useSelector;
-}
+  return typeof window === "undefined"
+    ? useSelectValue
+    : useSelectMemoizedValue;
+};
 
 /**
  * Creates a hook that reacts to state changes within a store.

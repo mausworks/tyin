@@ -1,19 +1,35 @@
 {
   "name": "tyin",
+  "description": "Typesafe state management in React for less!",
+  "keywords": [
+    "react",
+    "state",
+    "manager",
+    "management",
+    "redux",
+    "zustand",
+    "store",
+    "hook"
+  ],
+  "author": "Rasmus Wennerström",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mausworks/tyin.git"
+  },
+  "homepage": "https://github.com/mausworks/tyin",
   "version": "0.0.0",
   "type": "module",
+  "license": "ISC",
   "scripts": {
     "build:compile": "rm -rf dist/ && tsc -p tsconfig.build.json",
     "build:move": "mv dist/** . && rm -rf dist/",
-    "clean:build": "rm -f *.js && rm -f *.d.ts && rm -f *.js.map",
+    "clean:build": "rm -f **/*.js && rm -f **/*.d.ts && rm -f **/*.js.map",
     "test": "bun test"
   },
   "devDependencies": {
     "@types/react": "18.0.0",
-    "bun-types": "latest"
-  },
-  "peerDependencies": {
-    "typescript": "^5.0.0",
-    "react": ">18.0.0"
+    "react": "18.0.0",
+    "bun-types": "1.0.21",
+    "typescript": "^5.3.3"
   }
 }
