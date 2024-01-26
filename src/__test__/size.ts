@@ -5,7 +5,6 @@ await Bun.build({
   entrypoints: [
     "src/test/_export-all.ts",
     "src/test/_export-common.ts",
-    "src/test/_export-reducer.ts",
     "src/hook.ts",
     "src/store.ts",
     "src/extend.ts",
