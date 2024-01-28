@@ -34,7 +34,7 @@ export type ArrayAPIPlugin<T extends any[] | null> = Plugin<
  * @template T The type of the state, must be an array type.
  * @example
  * ```ts
- * import storeHook from "tyin/hook";
+ * import storeHook from "tyin";
  * import extend from "tyin/extend";
  * import arrayAPI from "tyin/plugin-array";
  *

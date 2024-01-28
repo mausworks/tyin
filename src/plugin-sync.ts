@@ -141,7 +141,7 @@ export type SyncPlugin<T extends AnyState, R extends {}> = Plugin<
  *
  * @example
  * ```ts
- * import storeHook from "tyin/hook";
+ * import storeHook from "tyin";
  * import sync from "tyin/plugin-sync";
  * import extend from "tyin/extend";
  * import { Note } from "@/types";

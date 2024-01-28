@@ -62,7 +62,7 @@ const mergeLeft = <T extends ObjectLike | null, U = Partial<T>>(
  * @template T The type of the state, must be an object type.
  * @example
  * ```ts
- * import storeHook from "tyin/hook";
+ * import storeHook from "tyin";
  * import extend from "tyin/extend";
  * import objectAPI from "tyin/plugin-object";
  *
