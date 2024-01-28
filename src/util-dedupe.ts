@@ -23,7 +23,7 @@ export type DedupeOptions<T extends AsyncFunction> = {
    *
    * Uses `JSON.stringify` by default.
    */
-  hash?: (...args: Parameters<T>) => string;
+  hash?: (...args: Parameters<T>) => string | number;
 };
 
 /**
@@ -44,7 +44,7 @@ export default function dedupe<T extends AsyncFunction<any>>(
   fn: T,
   options: DedupeOptions<T> = {}
 ): T {
-  let oldHash: string | undefined;
+  let oldHash: string | number | undefined;
   let promise: Promise<any> | undefined;
   let handle: any;
 

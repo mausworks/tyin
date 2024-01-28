@@ -45,7 +45,7 @@ export type SyncOptions<T extends AnyState, F extends SyncFunction<T>> = {
    *
    * Uses `JSON.stringify` by default.
    */
-  hash?: (state: T, ...extra: ExtraArgs<F>) => string;
+  hash?: (state: T, ...extra: ExtraArgs<F>) => string | number;
 };
 
 /** Configure how to pull a new state into the store. */
@@ -67,7 +67,7 @@ export type PullOptions<P extends PullFunction<any>> = {
    *
    * Uses `JSON.stringify` by default.
    */
-  hash?: (...args: Parameters<P>) => string;
+  hash?: (...args: Parameters<P>) => string | number;
 };
 
 /** Extracts a record of the user-defined sync functions from a setup object. */

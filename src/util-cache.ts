@@ -1,17 +1,20 @@
 /** A function that returns a value. */
 export type ValueFactory<T> = () => T;
 
+/** A key to store a value under in the cache. */
+export type CacheKey = string | number;
+
 /** A function that returns a value from the cache. */
 export type CacheGetter<T> = {
   /** Gets the value from the cache, or `null` if it is not found. */
-  (key: string): T | null;
+  (key: CacheKey): T | null;
   /**
    * Gets the value from the cache, or creates (and stores) it if it is not found.
    * @param key The key of the value to get.
    * @param create A factory function that returns a value.
    * @param lifetime (Optionally) How long to keep the value in the cache, in milliseconds.
    */
-  (key: string, create: ValueFactory<T>, lifetime?: number): T;
+  (key: CacheKey, create: ValueFactory<T>, lifetime?: number): T;
 };
 
 /** A cache of values that can be either transient or permanent. */
@@ -28,7 +31,7 @@ export type Cache<T> = {
    * @param input A value, or a tuple of a value and a lifetime in milliseconds.
    * @param lifetime (Optionally) How long to keep the value in the cache, in milliseconds.
    */
-  set: (key: string, input: T, lifetime?: number) => T;
+  set: (key: CacheKey, input: T, lifetime?: number) => T;
   /**
    * Removes a value from the cache, optionally after a delay.
    * @param key The key of the value to evict.
@@ -36,7 +39,7 @@ export type Cache<T> = {
    * If set to zero or less, evicts the value immediately (default)
    * If set to `Infinity`, makes the function no-op.
    */
-  evict: (key: string, delay?: number) => void;
+  evict: (key: CacheKey, delay?: number) => void;
 };
 
 /** Configure how to create a cache. */
@@ -64,10 +67,10 @@ export type CacheOptions = {
  * ```
  */
 export default function createCache<T>(options: CacheOptions = {}): Cache<T> {
-  const entries = new Map<string, T>();
+  const entries = new Map<CacheKey, T>();
   const defaultLifetime = options.lifetime ?? Infinity;
 
-  const set = (key: string, value: T, lifetime = defaultLifetime) => {
+  const set = (key: CacheKey, value: T, lifetime = defaultLifetime) => {
     if (lifetime > 0) {
       entries.set(key, value);
       evict(key, lifetime);
@@ -76,7 +79,7 @@ export default function createCache<T>(options: CacheOptions = {}): Cache<T> {
     return value;
   };
 
-  const get = ((key: string, create?: ValueFactory<T>, lifetime?: number) => {
+  const get = ((key: CacheKey, create?: ValueFactory<T>, lifetime?: number) => {
     const entry = entries.get(key);
 
     if (entry) return entry;
@@ -84,7 +87,7 @@ export default function createCache<T>(options: CacheOptions = {}): Cache<T> {
     else return set(key, create(), lifetime);
   }) as CacheGetter<T>;
 
-  const evict = (key: string, delay?: number) => {
+  const evict = (key: CacheKey, delay?: number) => {
     if (delay === Infinity) return;
     if (!delay || delay < 0) entries.delete(key);
     else setTimeout(() => entries.delete(key), delay);
