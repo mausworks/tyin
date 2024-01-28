@@ -5,6 +5,7 @@ export * from "../extend";
 export * from "../plugin-array";
 export * from "../plugin-object";
 export * from "../plugin-persist";
+export * from "../plugin-reducer";
 export * from "../plugin-sync";
 export * from "../useHydrate";
 export * from "../useSync";
