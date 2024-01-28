@@ -31,7 +31,7 @@ export type ReducerAPI<A> = {
 /**
  * A plugin that allows you to dispatch actions to a reducer.
  * @template T The type of the state.
- * @template A The type of the action.
+ * @template A A union of the supported actions.
  */
 export type ReducerPlugin<T extends AnyState, A> = Plugin<
   StoreAPI<T>,
