@@ -1,11 +1,11 @@
 import { Plugin } from "./extend";
 import { AnyState, StoreAPI } from "./store";
 
-/** An action to dispatch to a reducer */
+/** An action to dispatch to a reducer. */
 export type Action<T = string> = { type: T };
-/** An action with a payload */
+/** An action with a payload. */
 export type Payload<T = string, P = any> = { type: T; payload: P };
-/** A function that listens for actions */
+/** A function that listens for actions. */
 export type ActionListener<A> = (action: A) => void;
 
 /**
@@ -15,7 +15,7 @@ export type ActionListener<A> = (action: A) => void;
 export type ReducerAPI<A> = {
   /**
    * Dispatches an action to the reducer.
-   * @param action One of the actions supported by the reducer.
+   * @param action One of the actions supported of the reducer.
    */
   dispatch: (action: A) => void;
   /**
@@ -23,7 +23,7 @@ export type ReducerAPI<A> = {
    * Use the returned function to unsubscribe.
    *
    * Note: The listener is notifed even if the state update is identical.
-   * @param listener Called when an action is dispatched.
+   * @param listener Called after an action has been dispatched.
    */
   listen: (listener: ActionListener<A>) => () => void;
 };
@@ -39,8 +39,7 @@ export type ReducerPlugin<T extends AnyState, A> = Plugin<
 >;
 
 /**
- * A reducer function that takes a state and an action,
- * and returns a new state.
+ * A function that produces a new state from the current state and an action.
  * @template T The type of the state.
  * @template A The type of the actions.
  */
@@ -48,8 +47,7 @@ export type Reducer<T extends AnyState, A> = (state: T, action: A) => T;
 
 /**
  * A plugin that adds a reducer to the store, allowing you to dispatch and listen for actions.
- * @param reducer A reducer function that takes a state and an action,
- * and returns a new state.
+ * @param reducer Produces a new state from the current state and an action.
  * @template T The type of the state.
  * @template A The type of the actions.
  * @example
