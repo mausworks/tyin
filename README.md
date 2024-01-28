@@ -23,7 +23,7 @@ npm i tyin
 Create the hook:
 
 ```tsx
-import storeHook from "tyin/hook";
+import storeHook from "tyin";
 
 export const useActivePage = storeHook(1);
 ```
@@ -60,7 +60,7 @@ const Pagination = ({ maxPage }: PaginationProps) => {
 Real life applications are often complex, so let's add the `patch` function from the object plugin to handle partial updates:
 
 ```tsx
-import storeHook from "tyin/hook";
+import storeHook from "tyin";
 import extend from "tyin/extend";
 import objectAPI from "tyin/plugin-object";
 
@@ -91,7 +91,7 @@ In this example, we will add it, along with the persist plugin,
 and a custom setter called `complete`:
 
 ```tsx
-import storeHook from "tyin/hook";
+import storeHook from "tyin";
 import extend from "tyin/extend";
 import arrayAPI from "tyin/plugin-array";
 import persist from "tyin/plugin-persist";
@@ -141,7 +141,7 @@ After the store has been set up we can,
 pull the state when a component mounts by using the `usePull` hook. To push or delete, we can just call the functions directly on the `sync` API.
 
 ```tsx
-import storeHook from "tyin/hook";
+import storeHook from "tyin";
 import sync from "tyin/plugin-sync";
 import extend from "tyin/extend";
 import useHydrate from "tyin/plugin-sync/useHydrate";
@@ -202,18 +202,18 @@ fully featured state management solution in just a few bytes!
 
 Tyin doesn't come with a single entry point—that's intentional!
 
-It instead ships a couple of highly standalone modules,
+It instead ships standalone modules that are meant to extend each other,
 so that the user can import only the functionality that they need.
 
 ### 2. Genericism
 
 Tyin exposes generic APIs that aim to maximize ergonomics and minimize bundle size.
-Generic APIs facilitate code reuse, leading to synergies in consuming applications.
+Generic APIs facilitate code reuse which leads to synergies in consuming applications.
 
 For example: There is no `ObjectAPI.setKey(key, value)` function,
 because `ObjectAPI.patch({ [key]: value })` covers that need
-and a lot of other needs, simply by providing a generic API.
-This API is powerful enough to receive aggressive reuse in the consuming app; leading to an even smaller bundle size overall.
+and many others, simply by being more generic.
+This API is powerful enough to receive aggressive reuse in the consuming app; leading to an even smaller overall bundle size.
 
 ### 3. Composability
 
@@ -244,7 +244,7 @@ store: 245 bytes, 212 gzipped
 ```
 
 So, that means if you import everything; Tyin will add ~900 bytes to your bundle size,
-and the most minimal implementation (just `tyin/hook`) would only add ~350 bytes.
+and the most minimal implementation (importing just `tyin`) would only add ~350 bytes.
 
 But this all depends on your bundler and configuration. In real-life scenarios it is often less. For dott.bio—using the `export-object.js` variant measured above—Tyin adds 550 bytes (according to `next/bundle-analyzer`).
 

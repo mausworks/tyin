@@ -1,5 +1,5 @@
 // This is here to measure the bundle size of the library:
-export * from "../hook";
+export * from "../index";
 export * from "../store";
 export * from "../extend";
 export * from "../plugin-array";
