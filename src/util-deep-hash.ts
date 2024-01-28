@@ -44,7 +44,7 @@ function* serialize(input: unknown): Iterable<number> {
 }
 
 /**
- * Hashes the a sequence of 32-bit numbers using the CYRB53A algorithm
+ * Hashes the a sequence of 32-bit numbers using the cyrb53a algorithm
  * created by https://github.com/bryc (with slight modifications).
  * @param input A sequence of 32-bit numbers to hash.
  * @param seed (Optional) A seed to use for the hash.
