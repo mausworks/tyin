@@ -4,9 +4,9 @@ import createStore from "./store";
 import extend from "./extend";
 
 test("push calls the setup function with the extra args and returns the result", async () => {
-  const push = jest.fn((a: number) => Promise.resolve("result"));
+  const push = jest.fn((state: any, a: number) => Promise.resolve("result"));
   const store = extend(createStore({ a: 1 }))
-    .with(sync({ push: push as any }))
+    .with(sync({ push }))
     .seal();
 
   const result = await store.sync.push(2);
