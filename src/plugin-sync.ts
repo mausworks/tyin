@@ -125,7 +125,7 @@ export type SyncSetup<T extends AnyState, S extends object> = Recompose<
   S & FunctionSetup<T, S> & AvailableOptions<S>
 >;
 
-/** A plugin that allows you to sync the state upstream and downstream using a method of your choice. */
+/** A plugin that allows you to sync the state using methods of your choice. */
 export type SyncPlugin<T extends AnyState, S extends {}> = Plugin<
   StoreAPI<T>,
   SyncAPI<T, S>
