@@ -15,7 +15,7 @@ export type ActionListener<A> = (action: A) => void;
 export type ReducerAPI<A> = {
   /**
    * Dispatches an action to the reducer.
-   * @param action One of the actions supported of the reducer.
+   * @param action One of the actions supported by the reducer.
    */
   dispatch: (action: A) => void;
   /**
