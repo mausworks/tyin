@@ -13,12 +13,16 @@ export type DeepPlugin<T extends object, P = void> = Plugin<T, Plugin<T, P>>;
 /** The three possible ways to extend a host with plugins. */
 export type ExtendHost<T extends object> = {
   /** Extends the host with the properties returned by the plugin. */
-  <P>(plugin: DeepPlugin<T, P>): Extensible<T & P>;
+  <P>(plugin: DeepPlugin<T, P>): Extended<T, P>;
   /** Extends the host with the properties returned by the plugin. */
-  <P>(plugin: Plugin<T, P>): Extensible<T & P>;
+  <P>(plugin: Plugin<T, P>): Extended<T, P>;
   /** Extends the host with the provided properties. */
-  <P extends Record<string, any>>(plugin: P): Extensible<T & P>;
+  <P extends Record<string, any>>(plugin: P): Extended<T, P>;
 };
+
+export type Extended<T extends object, P> = P extends void | undefined | null
+  ? Extensible<T>
+  : Extensible<T & P>;
 
 /** An object that can be extended through plugins. */
 export type Extensible<T extends object> = T & {
