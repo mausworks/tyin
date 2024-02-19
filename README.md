@@ -246,7 +246,7 @@ store: 245 bytes, 213 gzipped
 So, that means if you import everything; Tyin will add ~1300 bytes to your bundle size,
 and the most minimal implementation (importing just `tyin`) would only add ~350 bytes.
 
-But this all depends on your bundler and configuration. In real-life scenarios it is often less. For dott.bio—using the `export-object.js` variant measured above—Tyin adds 550 bytes (according to `next/bundle-analyzer`).
+But this all depends on your bundler and configuration. In real-life scenarios it is often less. For dott.bio—using the `export-commob.js` variant measured above—Tyin adds 550 bytes (according to `next/bundle-analyzer`).
 
 ## Framework comparison
 
