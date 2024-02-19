@@ -5,7 +5,7 @@
  * @param callback A function to call.
  * @example
  * ```ts
- * import storeHook from "tyin";
+ * import storeHook from "tyin/hook";
  * import debounce from "tyin/util-debounce";
  *
  * const useExample = storeHook({ a: 1, b: 2 });

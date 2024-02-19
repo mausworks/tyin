@@ -52,7 +52,7 @@ export type Reducer<T extends AnyState, A> = (state: T, action: A) => T;
  * @template A The type of the actions.
  * @example
  * ```ts
- * import storeHook from "tyin";
+ * import storeHook from "tyin/hook";
  * import extend from "tyin/extend";
  * import reducerAPI, { Action, Payload } from "tyin/plugin-reducer";
  *

@@ -23,7 +23,7 @@ npm i tyin
 Create the hook:
 
 ```tsx
-import storeHook from "tyin";
+import storeHook from "tyin/hook";
 
 export const useActivePage = storeHook(1);
 ```
@@ -60,7 +60,7 @@ const Pagination = ({ maxPage }: PaginationProps) => {
 Real life applications are often complex, so let's add the `patch` function from the object plugin to handle partial updates:
 
 ```tsx
-import storeHook from "tyin";
+import storeHook from "tyin/hook";
 import extend from "tyin/extend";
 import objectAPI from "tyin/plugin-object";
 
@@ -91,7 +91,7 @@ In this example, we will add it, along with the persist plugin,
 and a custom setter called `complete`:
 
 ```tsx
-import storeHook from "tyin";
+import storeHook from "tyin/hook";
 import extend from "tyin/extend";
 import arrayAPI from "tyin/plugin-array";
 import persist from "tyin/plugin-persist";
@@ -141,7 +141,7 @@ After the store has been set up we can,
 pull the state when a component mounts by using the `usePull` hook. To push or delete, we can just call the functions directly on the `sync` API.
 
 ```tsx
-import storeHook from "tyin";
+import storeHook from "tyin/hook";
 import sync from "tyin/plugin-sync";
 import extend from "tyin/extend";
 import useHydrate from "tyin/plugin-sync/useHydrate";

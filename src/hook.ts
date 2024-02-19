@@ -80,7 +80,7 @@ const bindHook = <T extends AnyState>(
  * @template T The type of the state.
  * @example
  * ```ts
- * import storeHook from "tyin";
+ * import storeHook from "tyin/hook";
  * import extend from "tyin/extend";
  * import objectAPI from "tyin/plugin-object";
  *

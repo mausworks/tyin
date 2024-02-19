@@ -42,7 +42,7 @@ const localStorage = typeof window !== "undefined" ? window.localStorage : null;
  * @template T The type of the state.
  * @example
  * ```ts
- * import storeHook from "tyin";
+ * import storeHook from "tyin/hook";
  * import extend from "tyin/extend";
  * import persist from "tyin/plugin-persist";
  *

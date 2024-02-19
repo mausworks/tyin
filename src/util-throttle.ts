@@ -5,7 +5,7 @@
  * @param callback A function to call.
  * @example
  * ```ts
- * import storeHook from "tyin";
+ * import storeHook from "tyin/hook";
  * import extend from "tyin/extend";
  * import throttle from "tyin/util-throttle";
  *

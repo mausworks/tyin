@@ -29,7 +29,7 @@ export type DeepMerged<T extends PlainObject, P extends PlainObject> = {
  * @param patch The patch object to merge from.
  * @example
  * ```
- * import storeHook from "tyin";
+ * import storeHook from "tyin/hook";
  * import extend from "tyin/extend";
  * import objectAPI from "tyin/object";
  * import deepMerge from "tyin/util-deep-merge";
