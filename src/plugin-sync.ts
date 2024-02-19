@@ -133,7 +133,7 @@ export type SyncPlugin<T extends AnyState, S extends {}> = Plugin<
 
 /**
  * Adds data fetching and mutation capabilities to a store,
- * allowing you to sync the state using a method of your choice.
+ * allowing you to sync the state using methods of your choice.
  * @param setup Define how to pull and sync the state.
  * @template T The type of the state.
  * @template S The user-defined sync functions and their options.
