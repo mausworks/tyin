@@ -232,15 +232,15 @@ bun run src/test/size.ts
 This is the current output:
 
 ```txt
-export-all: 2914 bytes, 1357 gzipped
-export-common: 1469 bytes, 781 gzipped
-plugin-sync: 1089 bytes, 571 gzipped
-hook: 584 bytes, 384 gzipped
+export-all: 3288 bytes, 1505 gzipped
+export-common: 1469 bytes, 784 gzipped
+plugin-sync: 1240 bytes, 644 gzipped
+hook: 584 bytes, 383 gzipped
 plugin-persist: 415 bytes, 305 gzipped
 plugin-array: 332 bytes, 190 gzipped
 plugin-object: 286 bytes, 225 gzipped
-extend: 272 bytes, 191 gzipped
-store: 245 bytes, 212 gzipped
+extend: 272 bytes, 193 gzipped
+store: 245 bytes, 213 gzipped
 ```
 
 So, that means if you import everything; Tyin will add ~900 bytes to your bundle size,
