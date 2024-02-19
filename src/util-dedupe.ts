@@ -1,5 +1,5 @@
 /** A function that returns a promise. */
-export type AsyncFunction<A = any> = (...args: A[]) => Promise<any>;
+type AsyncFunction = (...args: any[]) => Promise<any>;
 
 /** Configures how to deduplicate calls to an async function. */
 export type DedupeOptions<T extends AsyncFunction> = {
@@ -40,7 +40,7 @@ export type DedupeOptions<T extends AsyncFunction> = {
  * });
  * ```
  */
-export default function dedupe<T extends AsyncFunction<any>>(
+export default function dedupe<T extends AsyncFunction>(
   fn: T,
   options: DedupeOptions<T> = {}
 ): T {
