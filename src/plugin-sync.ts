@@ -146,7 +146,7 @@ export type SyncPlugin<T extends AnyState, S extends {}> = Plugin<
  * import { Note } from "@/types";
  *
  * const useUserNotes = extend(storeHook<Note[]>([]))
- *   .with((store) =>
+ *   .with(
  *     sync({
  *       push: (notes, userId: string) =>
  *         fetch(`/api/notes/${userId}`, {
