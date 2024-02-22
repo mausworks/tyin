@@ -25,39 +25,30 @@ Create the hook:
 ```tsx
 import storeHook from "tyin/hook";
 
-export const useActivePage = storeHook(1);
+export const useAppSearch = storeHook<string>("");
 ```
 
 Use it anywhere:
 
 ```tsx
-import { useActivePage } from "./hooks/useActivePage";
+import { useAppSearch } from "./stores/useAppSearch";
 
-const Pagination = ({ maxPage }: PaginationProps) => {
-  const activePage = useActivePage();
+const AppSearchBar = () => {
+  const search = useAppSearch();
 
   return (
-    <Container>
-      <PreviousButton
-        disabled={activePage === 1}
-        onClick={() => useActivePage.set((page) => page - 1)}
-      />
-      <NextButton
-        disabled={activePage === maxPage}
-        onClick={() => useActivePage.set((page) => page + 1)}
-      />
-      <LastButton
-        disabled={activePage === maxPage}
-        onClick={() => useActivePage.set(maxPage)}
-      />
-    </Container>
+    <SearchInput
+      value={search}
+      onChange={(event) => useAppSearch.set(event.target.value)}
+    />
   );
 };
 ```
 
 ### Handling complex states
 
-Real life applications are often complex, so let's add the `patch` function from the object plugin to handle partial updates:
+Real life states are often complex objects,
+so let's add the `patch` function from the object plugin to handle partial updates.
 
 ```tsx
 import storeHook from "tyin/hook";
@@ -67,9 +58,11 @@ import objectAPI from "tyin/plugin-object";
 const useUserState = extend(
   storeHook({
     name: "mausworks",
-    roles: ["owner"],
+    roles: ["author"],
   })
-).with(objectAPI());
+)
+  .with(objectAPI())
+  .seal();
 
 const UserNameInput = () => {
   const name = useUserState((user) => user.name);
@@ -81,14 +74,17 @@ const UserNameInput = () => {
     />
   );
 };
+
 ```
+
+**Tip:** We can call `seal()` when we are done adding plugins to remove `with` (and `seal`) from the store.
 
 ### Handling arrays
 
-Tyin ships with a convenience plugin for arrays—because not every state is an object!
+Tyin ships with a convenience plugin for arrays, because not every state is an object!
 
-In this example, we will add it, along with the persist plugin,
-and a custom setter called `complete`:
+In this example, we will add it, a custom setter called `complete`,
+and also persist the state to local storage with the persist plugin.
 
 ```tsx
 import storeHook from "tyin/hook";
@@ -96,36 +92,35 @@ import extend from "tyin/extend";
 import arrayAPI from "tyin/plugin-array";
 import persist from "tyin/plugin-persist";
 
-const useTodoList = extend(
-  storeHook([{
-    task: "Walk the dog",
-    completed: false
-  }])
+const useTodos = extend(
+  storeHook([
+    {
+      task: "Walk the dog",
+      completed: false,
+    },
+  ])
 )
-  // Add the array API:
   .with(arrayAPI())
-  // Persist the state using the persist plugin:
-  .with(persist({ name: "TodoList" }));
-  // Add a custom setter:
   .with((store) => ({
     complete: (index: number) =>
       store.map((todo, i) =>
         i === index ? { ...todo, completed: true } : todo
-      );
+      ),
   }))
-  // Remove the `with` (and `seal`) from the store:
+  .with(persist({ name: "TodoList" }))
   .seal();
 
 const TodoApp = () => {
-  const todos = useTodoList((todos) => todos.filter((todo) => !todo.completed));
+  const todos = useTodos((todos) => todos.filter((todo) => !todo.completed));
 
   return (
     <Container>
       <TodoList
         todos={todos}
-        onComplete={(index) => useTodoList.complete(index)}
+        onComplete={(index) => useTodos.complete(index)}
       />
-      <AddTodo onSubmit={(task) => useTodoList.push({ task, completed: false })} />
+
+      <AddTodo onSubmit={(task) => useTodos.push({ task, completed: false })} />
     </Container>
   );
 };
@@ -133,18 +128,17 @@ const TodoApp = () => {
 
 ### Data fetching with Tyin Sync
 
-Tyin provides a way to query and mutate data upstream using the Sync plugin.
+Tyin provides a way to query and mutate data with the sync plugin.
+It supports automatic promise deduplication and caching based on the current state
+and/or parameters provided to the sync functions—no cache-key required!
 
-It provides automatic deduplication based on the parameters that you provide for `pull`, or based on the state itself for `push` and `delete`. You can also cache the result by setting a `cacheDuration`.
-
-After the store has been set up we can,
-pull the state when a component mounts by using the `usePull` hook. To push or delete, we can just call the functions directly on the `sync` API.
+After the store has been set up, we can use `useHydrate` and `useSync` to pull or sync the state.
 
 ```tsx
 import storeHook from "tyin/hook";
 import sync from "tyin/plugin-sync";
 import extend from "tyin/extend";
-import useHydrate from "tyin/plugin-sync/useHydrate";
+import useHydrate from "tyin/useHydrate";
 import { use } from "react";
 import { Note } from "@/types";
 
@@ -156,7 +150,7 @@ const useUserNotes = extend(storeHook<Note[]>([]))
           method: "PUT",
           body: JSON.stringify(notes),
         }),
-      pullOptions: { cacheDuration: 5000 },
+      pullOptions: { cacheTime: 5000,  },
       pull: (userId: string) =>
         fetch(`/api/notes/${userId}`).then((res) => res.json()),
     })
@@ -167,24 +161,28 @@ type UserNotesListProps = {
   userId: string;
 };
 
-const UserNotesPage = ({ userId }: UserNotesPageProps) => {
+const UserNotesPage = ({ userId }: UserNotesListProps) => {
   const hydration = useHydrate(useUserNotes.sync.pull, [userId], {
     onMount: true,
     onOnline: true,
     onFocus: true,
   });
+
   const notes = use(hydration);
 
-  return <NotesList readonly notes={notes} />;
+  return <NotesList notes={notes} />;
 };
 ```
+
+> **Tip:** `useHydrate`/`useSync` works for any async function that handles its own promise deduplication,
+> and we can use `util-dedupe` to deduplicate calls to async functions.
 
 ### Tyin without React
 
 Tyin works just fine without React, in fact,
 React is just a `devDependency` for it.
 
-Unless you import `storeHook` or other React-specific functionality, you can use Tyin anywhere. Just replace `storeHook` with `createStore`.
+Unless we import `storeHook` or other React-specific functionality, we can use Tyin anywhere. Just replace `storeHook` with `createStore`.
 
 ```ts
 import createStore from "tyin/store";
@@ -213,7 +211,7 @@ Generic APIs facilitate code reuse which leads to synergies in consuming applica
 For example: There is no `ObjectAPI.setKey(key, value)` function,
 because `ObjectAPI.patch({ [key]: value })` covers that need
 and many others, simply by being more generic.
-This API is powerful enough to receive aggressive reuse in the consuming app; leading to an even smaller overall bundle size.
+This API is powerful enough to receive aggressive reuse in the consuming app; leading to an even smaller overall bundle size!
 
 ### 3. Composability
 
@@ -232,7 +230,7 @@ bun run src/test/size.ts
 This is the current output:
 
 ```txt
-export-all: 3288 bytes, 1505 gzipped
+export-all: 3288 bytes, 1504 gzipped
 export-common: 1469 bytes, 784 gzipped
 plugin-sync: 1240 bytes, 644 gzipped
 hook: 584 bytes, 383 gzipped
