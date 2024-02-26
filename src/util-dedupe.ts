@@ -19,7 +19,7 @@ export type DedupeOptions<T extends AsyncFunction> = {
   timeout?: number;
   /**
    * Hashes the arguments of the function to determine
-   * if it was called again with the same arguments again.
+   * if it was called with the same arguments again.
    *
    * Uses `JSON.stringify` by default.
    */
