@@ -126,13 +126,14 @@ const TodoApp = () => {
 };
 ```
 
-### Data fetching with Tyin Sync
+### Data fetching with Tyin sync
 
 Tyin provides a way to query and mutate data with the sync plugin.
 It supports automatic promise deduplication and caching based on the current state
 and/or parameters provided to the sync functions—no cache-key required!
 
 After the store has been set up, we can use `useHydrate` and `useSync` to pull or sync the state.
+The result of `useHydrate` is a hydration promise that we can use with the suspense API!
 
 ```tsx
 import storeHook from "tyin/hook";
@@ -150,7 +151,7 @@ const useUserNotes = extend(storeHook<Note[]>([]))
           method: "PUT",
           body: JSON.stringify(notes),
         }),
-      pullOptions: { cacheTime: 5000,  },
+      pullOptions: { cacheTime: 5000 },
       pull: (userId: string) =>
         fetch(`/api/notes/${userId}`).then((res) => res.json()),
     })
@@ -175,14 +176,15 @@ const UserNotesPage = ({ userId }: UserNotesListProps) => {
 ```
 
 > **Tip:** `useHydrate`/`useSync` works for any async function that handles its own promise deduplication,
-> and we can use `util-dedupe` to deduplicate calls to async functions.
+> and we can use `tyin/util-dedupe` to deduplicate calls to async functions.
 
 ### Tyin without React
 
 Tyin works just fine without React, in fact,
 React is just a `devDependency` for it.
 
-Unless we import `storeHook` or other React-specific functionality, we can use Tyin anywhere. Just replace `storeHook` with `createStore`.
+Unless we import `storeHook` or other React-specific functionality, we can use Tyin anywhere. 
+Just replace `storeHook` with `createStore`.
 
 ```ts
 import createStore from "tyin/store";
@@ -244,20 +246,20 @@ store: 245 bytes, 213 gzipped
 So, that means if you import everything; Tyin will add ~1300 bytes to your bundle size,
 and the most minimal implementation (importing just `tyin`) would only add ~350 bytes.
 
-But this all depends on your bundler and configuration. In real-life scenarios it is often less. For dott.bio—using the `export-commob.js` variant measured above—Tyin adds 550 bytes (according to `next/bundle-analyzer`).
+But this all depends on your bundler and configuration. In real-life scenarios it is often less.
 
 ## Framework comparison
 
-This table compares the "general usage" between Tyin, Zustand and Redux.
+This table compares the general usage between Tyin, Zustand and Redux.
 I picked these frameworks, because I think most people are familiar with them.
 
-|             | Store setup                                              | Get state       | Set state                                |
-| ----------- | -------------------------------------------------------- | --------------- | ---------------------------------------- |
-| **Tyin**    | Create store, add plugins \*                             | Use store hook  | Call functions on the store              |
-| **Zustand** | Create store, define setter functions on the state \*\*  | Use store hook  | Call setter functions on the state       |
-| **Redux**   | Create store, define setter actions, add provider to app | Use useDispatch | Dispatch setter actions with useDispatch |
+| Framework   | Store setup                                              | Get state       | Set state                                  |
+|-------------|----------------------------------------------------------|-----------------|--------------------------------------------|
+| **Tyin**    | Create store, add plugins \*                             | Use store hook  | Call global functions on the _store_       |
+| **Zustand** | Create store, define setter functions on the state \*\*  | Use store hook  | Call local functions on the _state_        |
+| **Redux**   | Create store, define setter actions, add provider to app | Use useDispatch | Dispatch setter actions with `useDispatch` |
 
-> **\*** = You rarely define your own setter functions when using Tyin.
+> **\*** = We rarely define our own setter functions when using Tyin.
 > These are provided by plugins such as `tyin/plugin-object` instead.
 
 > **\*\*** = This is technically not needed, [but it is the recommended usage](https://docs.pmnd.rs/zustand/getting-started/introduction).
