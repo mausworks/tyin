@@ -8,7 +8,7 @@ Typesafe state management in React for less!
 ✅ Ergonomic  
 ✅ Extensible
 
-Tyin is pronounced _tie-in_: it ties a state into your app.
+Tyin is pronounced _tie-in_: it ties state into your app.
 
 ## Installation
 
