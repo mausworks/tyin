@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import useSync, { SyncState } from "./useSync";
 
 /**
@@ -52,6 +52,7 @@ export type HydrationState = {
   isHydrated: boolean;
 };
 
+/** A promise augmented with the hydration state and sync state. */
 export type Hydration<T extends Promise<any>> = T & HydrationState & SyncState;
 
 /**
@@ -92,70 +93,100 @@ export default function useHydrate<T extends Hydrator>(
   args: Parameters<T>,
   options: HydrateOptions = {}
 ): Hydration<ReturnType<T>> {
-  const { interval = Infinity, staleTime = 0 } = options;
+  const {
+    interval = Infinity,
+    onMount = true,
+    onFocus = false,
+    onOnline = true,
+  } = options;
+
+  // Memoize args by its contents, not its reference.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  args = useMemo(() => args, args);
+  const argsRef = useRef(args);
+
   const [sync, syncState] = useSync(hydrate);
-  const [isStale, setIsStale] = useState(true);
+  const [promise, setPromise] = useState(forever());
   const [isHydrated, setIsHydrated] = useState(false);
-  const [promise, setPromise] = useState(new Promise<any>(() => {}));
-  const staleHandle = useRef<number | undefined>(undefined);
+  const staleTimeRef = useRef(options.staleTime ?? 0);
+  const staleHandle = useRef<any>();
+  const staleRef = useRef(true);
+  const loadingRef = useRef(false);
+  const hydratedRef = useRef(false);
 
-  const run = useCallback(async () => {
-    if (syncState.isLoading || !isStale) return;
+  const load = useCallback(async () => {
+    if (loadingRef.current) return;
+    if (!staleRef.current) return;
 
-    const promise = sync(...args);
+    loadingRef.current = true;
+
+    const promise = sync(...argsRef.current);
     setPromise(promise);
-
     await promise;
 
-    setIsStale(false);
-    setIsHydrated(true);
+    loadingRef.current = false;
 
-    window.clearTimeout(staleHandle.current);
-
-    if (staleTime > 0 && staleTime !== Infinity) {
-      staleHandle.current = window.setTimeout(() => {
-        setIsStale(true);
-      }, staleTime);
+    if (staleTimeRef.current > 0) {
+      staleRef.current = false;
     }
-  }, [sync, staleTime, ...args]);
+
+    hydratedRef.current = true;
+    setIsHydrated(true);
+    clearTimeout(staleHandle.current);
+
+    if (staleTimeRef.current > 0 && staleTimeRef.current !== Infinity) {
+      staleHandle.current = setTimeout(() => {
+        staleRef.current = true;
+      }, staleTimeRef.current);
+    }
+  }, [sync]);
 
   useEffect(() => {
-    if (!isHydrated && (options.onMount ?? true)) run();
-  }, [run, isHydrated, options.onMount]);
+    if (!onMount || isHydrated) return;
 
-  useEffect(() => setIsStale(true), args);
-  useEffect(() => {
-    if (isHydrated) run();
-  }, [...args, run, isHydrated]);
+    load();
+  }, [load, onMount, isHydrated]);
 
   useEffect(() => {
-    if (!options.onFocus) return;
+    argsRef.current = args;
 
-    addEventListener("focus", run);
-    return () => removeEventListener("focus", run);
-  }, [run, options.onFocus]);
+    if (hydratedRef.current) {
+      staleRef.current = true;
+      load();
+    }
+  }, [load, args]);
+
+  useEffect(() => {
+    if (!onFocus) return;
+
+    addEventListener("focus", load);
+    return () => removeEventListener("focus", load);
+  }, [load, onFocus]);
+
+  useEffect(() => {
+    if (!onOnline) return;
+
+    addEventListener("online", load);
+    return () => removeEventListener("online", load);
+  }, [load, onOnline]);
 
   useEffect(() => {
     if (interval <= 0 || interval === Infinity) return;
 
-    const handle = setInterval(() => document.hidden || run(), interval);
+    const handle = setInterval(() => document.hidden || load(), interval);
     return () => clearInterval(handle);
-  }, [run, interval]);
-
-  useEffect(() => {
-    if (!options.onOnline) return;
-
-    window.addEventListener("online", run);
-    return () => window.removeEventListener("online", run);
-  }, [run, options.onOnline]);
+  }, [load, interval]);
 
   useEffect(() => {
     const handle = staleHandle.current;
-    return () => window.clearTimeout(handle);
+    return () => clearTimeout(handle);
   }, []);
 
   return Object.assign(promise as ReturnType<T>, syncState, {
-    isStale,
+    isStale: staleRef.current,
     isHydrated,
   });
 }
+
+/** A promise that never resolves. */
+const forever = () => new Promise(() => {});

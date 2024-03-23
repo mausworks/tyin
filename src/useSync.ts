@@ -1,7 +1,7 @@
 import { useCallback, useState } from "react";
 
 export type SyncState = {
-  /** Whether the sync function has settled. */
+  /** Whether the sync function has settled (failed or succeeded). */
   isDone: boolean;
   /** Whether the sync function is currently running. */
   isLoading: boolean;
@@ -12,8 +12,7 @@ export type SyncState = {
 };
 
 /**
- * Returns an synchronous version of the given async function,
- * along with the state of the function.
+ * Tracks the state of the given async function.
  * @param fn The function to use.
  * @example
  * ```tsx
@@ -43,11 +42,11 @@ export default function useSync<T extends (...args: any[]) => Promise<any>>(
   const [state, setState] = useState(initialState);
 
   const sync = useCallback(
-    async (...args: Parameters<T>) => {
+    (...args: Parameters<T>) => {
       setState(startingState);
 
       try {
-        const result = await fn(...args);
+        const result = fn(...args);
         setState(successState);
         return result;
       } catch (error) {
