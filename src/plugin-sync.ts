@@ -126,7 +126,7 @@ export type SyncSetup<T extends AnyState, S extends object> = Recompose<
 >;
 
 /** A plugin that allows you to sync the state using methods of your choice. */
-export type SyncPlugin<T extends AnyState, S extends {}> = Plugin<
+export type SyncPlugin<T extends AnyState, S extends object> = Plugin<
   StoreAPI<T>,
   SyncAPI<T, S>
 >;
