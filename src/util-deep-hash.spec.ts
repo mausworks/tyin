@@ -4,8 +4,10 @@ import deepHash from "./util-deep-hash";
 import { deepEquals } from "bun";
 
 const VERBOSE = false;
-const COLLISION_TEST = true;
-const ITERATIONS = process.env.CI ? 10_000 : 100_000;
+
+const HARD_TESTS = Boolean(process.env.CI || process.env.DEEP_HASH_TESTS);
+const COLLISION_TEST = HARD_TESTS;
+const ITERATIONS = process.env.CI ? 10_000 : 1000;
 
 test("clones have the same hash", () => {
   fc.assert(
@@ -24,13 +26,13 @@ test("null !== undefined", () => {
   expect(deepHash(null)).not.toBe(deepHash(undefined));
 });
 
-test("increment changes", () => {
+test.if(HARD_TESTS)("increment changes", () => {
   for (let i = -10000000; i < 10000000; i += 2) {
     expect(deepHash(i)).not.toBe(deepHash(i + 1));
   }
 });
 
-test.if(!process.env.CI)("16-bit range", () => {
+test.if(HARD_TESTS)("16-bit range", () => {
   const map = new Map<number, number>();
 
   for (let i = -32768; i < -32767; i++) {
