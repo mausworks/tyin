@@ -1,12 +1,14 @@
 # 👔 Tyin
 
-**Typesafe state management in React for less!**
+Typesafe state management in React for less!
+
+[![npm](https://img.shields.io/npm/v/tyin)](https://npmjs.org/tyin) [![GitHub Workflow (Release)](https://img.shields.io/github/actions/workflow/status/mausworks/tyin/release.yml)](https://github.com/mausworks/tyin/actions/workflows/release.yml)
 
 ✅ Tiny (<1K)  
 ✅ Ergonomic  
 ✅ Extensible
 
-Tyin is pronounced _tie-in_: it ties a state into your app.
+Tyin is pronounced _tie-in_: it ties state into your app.
 
 ## Installation
 
@@ -23,37 +25,30 @@ Create the hook:
 ```tsx
 import storeHook from "tyin/hook";
 
-export const useActivePage = storeHook(1);
+export const useAppSearch = storeHook<string>("");
 ```
 
 Use it anywhere:
 
 ```tsx
-import { useActivePage } from "./hooks/useActivePage";
+import { useAppSearch } from "./stores/useAppSearch";
 
-const Pagination = ({ maxPage }: PaginationProps) => {
-  const activePage = useActivePage();
+const AppSearchBar = () => {
+  const search = useAppSearch();
 
   return (
-    <Container>
-      <PreviousButton
-        disabled={activePage === 1}
-        onClick={() => useActivePage.set((page) => page - 1)}
-      />
-      <NextButton
-        disabled={activePage === maxPage}
-        onClick={() => useActivePage.set((page) => page + 1)}
-      />
-      <LastButton
-        disabled={activePage === maxPage}
-        onClick={() => useActivePage.set(maxPage)}
-      />
-    </Container>
+    <SearchInput
+      value={search}
+      onChange={(event) => useAppSearch.set(event.target.value)}
+    />
   );
 };
 ```
 
-Real life applications are often more complex, though, so let's add the `patch` function from the object plugin to handle partial updates:
+### Handling complex states
+
+Real life states are often complex objects,
+so let's add the `patch` function from the object plugin to handle partial updates.
 
 ```tsx
 import storeHook from "tyin/hook";
@@ -63,9 +58,11 @@ import objectAPI from "tyin/plugin-object";
 const useUserState = extend(
   storeHook({
     name: "mausworks",
-    roles: ["owner"],
+    roles: ["author"],
   })
-).with(objectAPI());
+)
+  .with(objectAPI())
+  .seal();
 
 const UserNameInput = () => {
   const name = useUserState((user) => user.name);
@@ -77,12 +74,17 @@ const UserNameInput = () => {
     />
   );
 };
+
 ```
 
-Tyin also ships with a convenience plugin for arrays—because not every state is an object!
+**Tip:** We can call `seal()` when we are done adding plugins to remove `with` (and `seal`) from the store.
 
-In this example, we will add it, along with the persist plugin,
-and a custom setter called `complete`:
+### Handling arrays
+
+Tyin ships with a convenience plugin for arrays, because not every state is an object!
+
+In this example, we will add it, a custom setter called `complete`,
+and also persist the state to local storage with the persist plugin.
 
 ```tsx
 import storeHook from "tyin/hook";
@@ -90,42 +92,99 @@ import extend from "tyin/extend";
 import arrayAPI from "tyin/plugin-array";
 import persist from "tyin/plugin-persist";
 
-const useTodoList = extend(
-  storeHook([{
-    task: "Walk the dog",
-    completed: false
-  }])
+const useTodos = extend(
+  storeHook([
+    {
+      task: "Walk the dog",
+      completed: false,
+    },
+  ])
 )
-  // Add the array API:
   .with(arrayAPI())
-  // Persist the state using the persist plugin:
-  .with(persist({ name: "TodoList" }));
-  // Add a custom setter:
   .with((store) => ({
     complete: (index: number) =>
       store.map((todo, i) =>
         i === index ? { ...todo, completed: true } : todo
-      );
+      ),
   }))
-  // Remove the `with` (and `seal`) from the store:
+  .with(persist({ name: "TodoList" }))
   .seal();
 
 const TodoApp = () => {
-  const todos = useTodoList((todos) => todos.filter((todo) => !todo.completed));
+  const todos = useTodos((todos) => todos.filter((todo) => !todo.completed));
 
   return (
     <Container>
       <TodoList
         todos={todos}
-        onComplete={(index) => useTodoList.complete(index)}
+        onComplete={(index) => useTodos.complete(index)}
       />
-      <AddTodo onSubmit={(task) => useTodoList.push({ task, completed: false })} />
+
+      <AddTodo onSubmit={(task) => useTodos.push({ task, completed: false })} />
     </Container>
   );
 };
 ```
 
-We can also use Tyin outside of React:
+### Data fetching with Tyin sync
+
+Tyin provides a way to query and mutate data with the sync plugin.
+It supports automatic promise deduplication and caching based on the current state
+and/or parameters provided to the sync functions—no cache-key required!
+
+After the store has been set up, we can use `useHydrate` and `useSync` to pull or sync the state.
+The result of `useHydrate` is a hydration promise that we can use with the suspense API!
+
+```tsx
+import storeHook from "tyin/hook";
+import sync from "tyin/plugin-sync";
+import extend from "tyin/extend";
+import useHydrate from "tyin/useHydrate";
+import { use } from "react";
+import { Note } from "@/types";
+
+const useUserNotes = extend(storeHook<Note[]>([]))
+  .with(
+    sync({
+      push: (notes, userId: string) =>
+        fetch(`/api/notes/${userId}`, {
+          method: "PUT",
+          body: JSON.stringify(notes),
+        }),
+      pullOptions: { cacheTime: 5000 },
+      pull: (userId: string) =>
+        fetch(`/api/notes/${userId}`).then((res) => res.json()),
+    })
+  )
+  .seal();
+
+type UserNotesListProps = {
+  userId: string;
+};
+
+const UserNotesPage = ({ userId }: UserNotesListProps) => {
+  const hydration = useHydrate(useUserNotes.sync.pull, [userId], {
+    onMount: true,
+    onOnline: true,
+    onFocus: true,
+  });
+
+  const notes = use(hydration);
+
+  return <NotesList notes={notes} />;
+};
+```
+
+> **Tip:** `useHydrate`/`useSync` works for any async function that handles its own promise deduplication,
+> and we can use `tyin/util-dedupe` to deduplicate calls to async functions.
+
+### Tyin without React
+
+Tyin works just fine without React, in fact,
+React is just a `devDependency` for it.
+
+Unless we import `storeHook` or other React-specific functionality, we can use Tyin anywhere. 
+Just replace `storeHook` with `createStore`.
 
 ```ts
 import createStore from "tyin/store";
@@ -143,18 +202,18 @@ fully featured state management solution in just a few bytes!
 
 Tyin doesn't come with a single entry point—that's intentional!
 
-It instead ships a couple of highly standalone modules,
+It instead ships standalone modules that are meant to extend each other,
 so that the user can import only the functionality that they need.
 
 ### 2. Genericism
 
 Tyin exposes generic APIs that aim to maximize ergonomics and minimize bundle size.
-Generic APIs facilitate code reuse, leading to synergies in consuming applications.
+Generic APIs facilitate code reuse which leads to synergies in consuming applications.
 
 For example: There is no `ObjectAPI.setKey(key, value)` function,
 because `ObjectAPI.patch({ [key]: value })` covers that need
-and a lot of other needs, simply by providing a generic API.
-This API is powerful enough to receive aggressive reuse in the consuming app; leading to an even smaller bundle size overall.
+and many others, simply by being more generic.
+This API is powerful enough to receive aggressive reuse in the consuming app; leading to an even smaller overall bundle size!
 
 ### 3. Composability
 
@@ -173,33 +232,34 @@ bun run src/test/size.ts
 This is the current output:
 
 ```txt
-export-all: 1619 bytes, 832 gzipped
-export-common: 1309 bytes, 722 gzipped
-hook: 529 bytes, 350 gzipped
-plugin-persist: 415 bytes, 304 gzipped
+export-all: 3288 bytes, 1504 gzipped
+export-common: 1469 bytes, 784 gzipped
+plugin-sync: 1240 bytes, 644 gzipped
+hook: 584 bytes, 383 gzipped
+plugin-persist: 415 bytes, 305 gzipped
 plugin-array: 332 bytes, 190 gzipped
-plugin-object: 286 bytes, 226 gzipped
-store: 245 bytes, 212 gzipped
-extend: 167 bytes, 138 gzipped
+plugin-object: 286 bytes, 225 gzipped
+extend: 272 bytes, 193 gzipped
+store: 245 bytes, 213 gzipped
 ```
 
-So, that means if you import everything; Tyin will add ~900 bytes to your bundle size,
-and the most minimal implementation (just `tyin/hook`) would only add ~350 bytes.
+So, that means if you import everything; Tyin will add ~1300 bytes to your bundle size,
+and the most minimal implementation (importing just `tyin`) would only add ~350 bytes.
 
-But this all depends on your bundler and configuration. In real-life scenarios it is often less. For dott.bio—using the `export-object.js` variant measured above—Tyin adds 550 bytes (according to `next/bundle-analyzer`).
+But this all depends on your bundler and configuration. In real-life scenarios it is often less.
 
 ## Framework comparison
 
-This table compares the "general usage" between Tyin, Zustand and Redux.
+This table compares the general usage between Tyin, Zustand and Redux.
 I picked these frameworks, because I think most people are familiar with them.
 
-|             | Store setup                                              | Get state       | Set state                                |
-| ----------- | -------------------------------------------------------- | --------------- | ---------------------------------------- |
-| **Tyin**    | Create store, add plugins \*                             | Use store hook  | Call functions on the store              |
-| **Zustand** | Create store, define setter functions on the state \*\*  | Use store hook  | Call setter functions on the state       |
-| **Redux**   | Create store, define setter actions, add provider to app | Use useDispatch | Dispatch setter actions with useDispatch |
+| Framework   | Store setup                                              | Get state       | Set state                                  |
+|-------------|----------------------------------------------------------|-----------------|--------------------------------------------|
+| **Tyin**    | Create store, add plugins \*                             | Use store hook  | Call global functions on the _store_       |
+| **Zustand** | Create store, define setter functions on the state \*\*  | Use store hook  | Call local functions on the _state_        |
+| **Redux**   | Create store, define setter actions, add provider to app | Use useDispatch | Dispatch setter actions with `useDispatch` |
 
-> **\*** = You rarely define your own setter functions when using Tyin.
+> **\*** = We rarely define our own setter functions when using Tyin.
 > These are provided by plugins such as `tyin/plugin-object` instead.
 
 > **\*\*** = This is technically not needed, [but it is the recommended usage](https://docs.pmnd.rs/zustand/getting-started/introduction).
@@ -259,3 +319,18 @@ So why not replace custom state setters with generic ones?
 
 At this point, I realized that zustand ships a lot of things that I have no interest in,
 so I wanted to make something simpler that only satisfies my requirements, and Tyin is the result!
+
+## Module naming strategy
+
+Here are the general naming guidelines:
+
+- Use no prefix for top-level APIs (example: `store.ts`)
+- Use the `plugin-` prefix for plugins (example: `plugin-object.ts`)
+- Functions that are related to a plugin may be exported from a folder with the plugin name (example: `plugin-sync/usePull.ts`)
+- Use the `util-` prefix for utility functions (example: `util-throttle.ts`)
+- Utils may only export a single function (and related types)
+
+_Keep in mind that every module in the project is intended for external consumption_
+
+- Every file should have a default export (with a good default name)
+- Default exports must be documented and provide a clear example of usage
