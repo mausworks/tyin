@@ -46,7 +46,7 @@ export type SyncOptions = {
    *
    * Defaults to `Infinity`.
    */
-  dedupeTimeout?: number;
+  dedupeTime?: number;
   /**
    * Hash the state to determine whether it has changed since the last sync.
    *
@@ -171,12 +171,12 @@ export default function sync<
     const cachedSync = <F extends SyncFunction<T>>(
       fn: F,
       {
-        dedupeTimeout = Infinity,
+        dedupeTime = Infinity,
         cacheTime = 0,
         hash = JSONHash,
       }: SyncOptions = {}
     ) => {
-      const deduped = dedupe(fn, { timeout: dedupeTimeout });
+      const deduped = dedupe(fn, { timeout: dedupeTime });
 
       return (...args: ExtraParameters<F>) => {
         const state = store.get();
@@ -189,12 +189,12 @@ export default function sync<
     const cachedPull = <F extends PullFunction<T>>(
       fn: F,
       {
-        dedupeTimeout = Infinity,
+        dedupeTime = Infinity,
         cacheTime = 0,
         hash = JSONHash,
       }: SyncOptions = {}
     ) => {
-      const deduped = dedupe(fn, { timeout: dedupeTimeout });
+      const deduped = dedupe(fn, { timeout: dedupeTime });
 
       return (...args: Parameters<F>) =>
         cache
