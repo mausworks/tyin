@@ -1,6 +1,6 @@
 import { act, renderHook } from "@testing-library/react-hooks";
 import { describe, it, expect } from "bun:test";
-import useSync from "../useSync";
+import useSync from "./useSync";
 
 describe("state tracking", () => {
   it("starts in the initial state", () => {
