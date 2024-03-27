@@ -100,7 +100,7 @@ export type SetupSuggestions<T extends AnyState> = {
 export type AvailableOptions<S extends object> = {
   [K in FunctionKeys<S> as `${K}Options`]?: S[K] extends (...args: any) => any
     ? SyncOptions
-    : never;
+    : unknown;
 };
 
 /** Extracts the a record of the compiled sync function types from a setup object. */
@@ -109,7 +109,7 @@ export type Compile<T extends AnyState, S extends object> = {
     ? K extends `pull${string}`
       ? CompiledPullFunction<T, S[K]>
       : CompiledSyncFunction<T, S[K]>
-    : never;
+    : unknown;
 };
 
 /** The API provided by the sync plugin. */
